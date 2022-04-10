@@ -13,13 +13,14 @@ const unsigned int BLOCK_SZ = 4096;
 using namespace std;
 using namespace hsql;
 
-
 string execute(const SQLStatement *stmt);
-string executeSelect(const SQLStatement *stmt);
-string executeCreate(const SQLStatement *stmt);
-string executeInsert(const SQLStatement *stmt);
+string executeSelect(const SelectStatement *stmt);
+string executeCreate(const CreateStatement*stmt);
 string columnDefinitionToString(const ColumnDefinition *col);
+string getExpression(const Expr* expr);
 string tableInfoDefinitionToString(const TableRef* table);
+string OperatorExpressionToString(const Expr* expr);
+string getJoinType(JoinType type);
 
 int main(int argc, char** argv) {
     if (argc != 2){
@@ -40,19 +41,6 @@ int main(int argc, char** argv) {
     db.set_re_len(BLOCK_SZ);                                               // Set record length to 4K
     db.open(NULL, EXAMPLE, NULL, DB_RECNO, DB_CREATE | DB_TRUNCATE, 0644); // Erases anything already there
 
-    char block[BLOCK_SZ];
-    Dbt data(block, sizeof(block));
-    int block_number;
-    Dbt key(&block_number, sizeof(block_number));
-    block_number = 1;
-    strcpy(block, "hello!");
-    db.put(NULL, &key, &data, 0);  // write block #1 to the database
-
-    Dbt rdata;
-    db.get(NULL, &key, &rdata, 0); // read block #1 from the database
-    std::cout << "Read (block #" << block_number << "): '" << (char *)rdata.get_data() << "'";
-    std::cout << " (expect 'hello!')" << std::endl;
-
     // SQL entry
     while (true)
     {
@@ -61,7 +49,6 @@ int main(int argc, char** argv) {
         getline(cin, sql);
 
         if (sql == "quit"){
-            std::cout << "Quitting the program" << std::endl;
             break;
         }
 
@@ -96,14 +83,11 @@ string execute(const SQLStatement *stmt)
 {
     switch (stmt->type())
     {
-//        case kStmtSelect:
-//            return executeSelect((const SelectStatement *)stmt);
-//            break;
-        case kStmtInsert:
-            return executeInsert((const InsertStatement *)stmt);
+        case kStmtSelect:
+            return executeSelect((const SelectStatement *)stmt);
             break;
         case kStmtCreate:
-            return executeCreate((const CreateStatement *)stmt);
+            return executeCreate((const CreateStatement*)stmt);
             break;
         default:
             return "No implemented";
@@ -111,21 +95,178 @@ string execute(const SQLStatement *stmt)
     }
 }
 
+/**
+ * Convert the select statement into equivalent SQL
+ * @param stmt  select statement to unparse
+ * @return     equivalent SQL select
+ */
 string executeSelect(const SelectStatement *stmt)
 {
-    string ret("SELECT * FROM ");
-    ret += tableInfoDefinitionToString(stmt->fromTable);
-    return ret;
+    string selectQuery;
+    selectQuery.append("SELECT ");
+
+    for (uint i = 0; i < stmt->selectList->size(); ++i) {
+        if (i != 0) {
+            selectQuery.append(", ");
+        }
+        selectQuery.append(getExpression(stmt->selectList->at(i)));
+    }
+
+    selectQuery.append(" FROM ");
+    selectQuery.append(tableInfoDefinitionToString(stmt->fromTable));
+
+    if (stmt->whereClause != NULL) {
+        selectQuery.append(" WHERE ");
+        selectQuery.append(getExpression(stmt->whereClause));
+    }
+
+    return selectQuery;
 }
 
-string executeCreate(const SQLStatement *stmt)
+/**
+ * Convert the create statement into equivalent SQL
+ * @param stmt  create statement to unparse
+ * @return     SQL create
+ */
+string executeCreate(const CreateStatement *stmt)
 {
-    return "CREATE";
+    string createQuery;
+    createQuery.append("CREATE TABLE ");
+    createQuery.append(string(stmt->tableName));
+    createQuery.append(" (");
+
+    for(uint i = 0; i < stmt->columns->size(); ++i)
+    {
+        if (i != 0){
+            createQuery.append(", ");
+        }
+        createQuery.append(columnDefinitionToString(stmt->columns->at(i)));
+    }
+
+    createQuery.append(")");
+    return createQuery;
 }
 
-string executeInsert(const SQLStatement *stmt)
-{
-    return "INSERT";
+
+/**
+ * get join type
+ * @param type  join type to unparse
+ * @return     join type
+ */
+string getJoinType(JoinType type) {
+    string joinType;
+
+    switch (type)
+    {
+    case kJoinInner:
+        joinType.append(" JOIN ");
+        break;
+    case kJoinOuter:
+        joinType.append(" OUTER JOIN ");
+        break;
+    case kJoinLeft:
+        joinType.append(" LEFT JOIN ");
+        break;
+    case kJoinRight:
+        joinType.append(" RIGHT JOIN ");
+        break;
+    case kJoinLeftOuter:
+        joinType.append(" LEFT OUTER JOIN ");
+        break;
+    case kJoinRightOuter:
+        joinType.append(" RIGHT OUTER JOIN ");
+        break;
+    case kJoinCross:
+        joinType.append(" CROSS JOIN ");
+        break;
+    default:
+        cout << "Join type "<< type << " not found" << endl;
+        break;
+    }
+
+    return joinType;
+}
+
+string tableInfoDefinitionToString(const TableRef* table) {
+    string tableRefInfo;
+
+    switch (table->type) {
+    case kTableName:
+        tableRefInfo.append(table->name);
+        break;
+    case kTableSelect:
+        tableRefInfo.append(executeSelect(table->select));
+        break;
+    case kTableJoin:
+        tableRefInfo.append(tableInfoDefinitionToString(table->join->left));
+        tableRefInfo.append(getJoinType(table->join->type));     
+        tableRefInfo.append(tableInfoDefinitionToString(table->join->right));
+
+        if (table->join->condition != NULL)
+        {
+            tableRefInfo.append(" ON ");
+            tableRefInfo.append(getExpression(table->join->condition));
+        }
+        break;
+    case kTableCrossProduct:
+        for (uint i = 0; i < table->list->size(); ++i){
+            if (i!= 0){
+                tableRefInfo.append(", ");
+            }
+            
+            tableRefInfo.append(tableInfoDefinitionToString(table->list->at(i)));
+        }
+        break;
+    }
+
+    if (table->alias != NULL){
+        tableRefInfo.append(" AS ");
+        tableRefInfo.append(table->alias);
+    }
+
+    return tableRefInfo;
+}
+
+string getExpression(const Expr* expr) {
+    string expression;
+
+    switch (expr->type) {
+    case kExprStar:
+        expression.append("*");
+        break;
+    case kExprColumnRef:
+        if (expr->table != NULL) {
+            expression.append(string(expr->table));
+            expression.append(".");
+        }           
+        expression.append(expr->name);
+        break;
+        case kExprLiteralFloat:
+        expression.append(std::to_string(expr->fval));
+        break;
+    case kExprLiteralInt:
+        expression.append(std::to_string(expr->ival));
+        break;
+    case kExprLiteralString:
+        expression.append(string(expr->name));
+        break;
+    case kExprFunctionRef:
+        expression.append(string(expr->name));
+        expression.append(string(expr->expr->name));
+        break;
+    case kExprOperator:
+        expression.append(OperatorExpressionToString(expr));
+        break;
+    default:
+        expression.append("Unrecognized expression type");
+        return expression;
+    }
+
+    if (expr->alias != NULL) {
+       expression.append("AS");
+        expression.append(string(expr->alias));
+    }
+    return expression;
 }
 
 /**
@@ -152,40 +293,35 @@ string columnDefinitionToString(const ColumnDefinition *col) {
     return ret;
 }
 
-string tableInfoDefinitionToString(const TableRef* table)
+string OperatorExpressionToString(const Expr* expr)
 {
-    string ret("");
-    switch (table->type) {
-        case kTableName:
-            ret += table->name;
-            break;
-        case kTableSelect:
-            // printSelectStatementInfo(table->select, numIndent);
-            break;
-        case kTableJoin:
-            if(table->join->type == JoinType::kJoinLeft)
-                ret += " LEFT JOIN ";
-            if(table->join->type == JoinType::kJoinRight)
-                ret += " RIGHT JOIN ";
-            if(table->join->type == JoinType::kJoinNatural)
-                ret += " NATURAL JOIN ";
-            if(table->join->type == JoinType::kJoinInner)
-                ret += " JOIN ";
-            if(table->join->type == JoinType::kJoinOuter)
-                ret += " OUTER JOIN ";
-            if(table->join->type == JoinType::kJoinLeftOuter)
-                ret += " LEFT OUTER JOIN ";
-            if(table->join->type == JoinType::kJoinRightOuter)
-                ret += " RIGHT OUTER JOIN ";
-            if(table->join->type == JoinType::kJoinCross)
-                ret += " CROSS JOIN ";
+    string op;
+    if (expr == NULL)
+        return "null";
+    if (expr->expr != NULL)
+        op += getExpression(expr->expr) + " ";
 
-
-            ret += expressionDefinitionToString(table->join->condition);
-            break;
-        case kTableCrossProduct:
-            // for (TableRef* tbl : *table->list) printTableRefInfo(tbl, numIndent);
-            break;
+    switch (expr->opType)
+    {
+    case Expr::SIMPLE_OP:
+        op += expr->opChar;
+        break;
+    case Expr::AND:
+        op += "AND";
+        break;
+    case Expr::OR:
+        op += "OR";
+        break;
+    case Expr::NOT:
+        op += "NOT";
+        break;
+    default:
+        op += expr->opType;
+        break;
     }
-    return ret;
+
+    if (expr->expr2 != NULL)
+        op += " " + getExpression(expr->expr2);
+
+    return op;
 }
