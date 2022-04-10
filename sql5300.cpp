@@ -15,10 +15,11 @@ using namespace hsql;
 
 
 string execute(const SQLStatement *stmt);
-//string executeSelect(const SQLStatement *stmt);
+string executeSelect(const SQLStatement *stmt);
 string executeCreate(const SQLStatement *stmt);
 string executeInsert(const SQLStatement *stmt);
 string columnDefinitionToString(const ColumnDefinition *col);
+string tableInfoDefinitionToString(const TableRef* table);
 
 int main(int argc, char** argv) {
     if (argc != 2){
@@ -110,10 +111,12 @@ string execute(const SQLStatement *stmt)
     }
 }
 
-//string executeSelect(const SelectStatement *stmt)
-//{
-//    return "SELECT";
-//}
+string executeSelect(const SelectStatement *stmt)
+{
+    string ret("SELECT * FROM ");
+    ret += tableInfoDefinitionToString(stmt->fromTable);
+    return ret;
+}
 
 string executeCreate(const SQLStatement *stmt)
 {
@@ -144,6 +147,44 @@ string columnDefinitionToString(const ColumnDefinition *col) {
             break;
         default:
             ret += " ...";
+            break;
+    }
+    return ret;
+}
+
+string tableInfoDefinitionToString(const TableRef* table)
+{
+    string ret("");
+    switch (table->type) {
+        case kTableName:
+            ret += table->name;
+            break;
+        case kTableSelect:
+            // printSelectStatementInfo(table->select, numIndent);
+            break;
+        case kTableJoin:
+            if(table->join->type == JoinType::kJoinLeft)
+                ret += " LEFT JOIN ";
+            if(table->join->type == JoinType::kJoinRight)
+                ret += " RIGHT JOIN ";
+            if(table->join->type == JoinType::kJoinNatural)
+                ret += " NATURAL JOIN ";
+            if(table->join->type == JoinType::kJoinInner)
+                ret += " JOIN ";
+            if(table->join->type == JoinType::kJoinOuter)
+                ret += " OUTER JOIN ";
+            if(table->join->type == JoinType::kJoinLeftOuter)
+                ret += " LEFT OUTER JOIN ";
+            if(table->join->type == JoinType::kJoinRightOuter)
+                ret += " RIGHT OUTER JOIN ";
+            if(table->join->type == JoinType::kJoinCross)
+                ret += " CROSS JOIN ";
+
+
+            ret += expressionDefinitionToString(table->join->condition);
+            break;
+        case kTableCrossProduct:
+            // for (TableRef* tbl : *table->list) printTableRefInfo(tbl, numIndent);
             break;
     }
     return ret;
