@@ -4,6 +4,7 @@
 #include <iostream>
 #include "db_cxx.h"
 #include "SQLParser.h"
+#include "heap_storage.h"
 
 // CREATE A DIRECTORY IN YOUR HOME DIR ~/cpsc5300/data before running this
 const char *HOME = "cpsc5300/data";
@@ -52,7 +53,12 @@ int main(int argc, char** argv) {
             break;
         }
 
-        if (sql.length() < 1){
+        if (sql.length() == 0){
+            continue;
+        }
+
+        if (sql == "test") {
+            cout << "test_heap_storage: " << (test_heap_storage() ? "ok" : "failed") << endl;
             continue;
         }
 
