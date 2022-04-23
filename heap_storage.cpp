@@ -192,7 +192,7 @@ void HeapFile::create(void) {
 }
 
 void HeapFile::close() {
-    this->db.close();
+    this->db.close(0);
     this->closed = true;
 }
 
