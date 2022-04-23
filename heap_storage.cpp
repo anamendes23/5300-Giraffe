@@ -210,8 +210,8 @@ void HeapFile::open() {
 
 void HeapFile::db_open(uint flags) {
     if (this->closed) {
-        db.set_message_stream(_DB_ENV->get_message_stream());
-        db.set_error_stream(_DB_ENV->get_error_stream());
+    //    db.set_message_stream(_DB_ENV->get_message_stream());
+    //    db.set_error_stream(_DB_ENV->get_error_stream());
         db.set_re_len(DbBlock::BLOCK_SZ);
         this->dbfilename =  this->name + ".db";
         int result = this->db.open(NULL, this->dbfilename.c_str(), NULL, DB_RECNO, flags, 0644);
@@ -227,7 +227,7 @@ void HeapFile::db_open(uint flags) {
 
     }
 }
-/*
+
 void HeapFile::put(DbBlock *block) {
 
 }
@@ -248,6 +248,7 @@ u_int32_t HeapFile::get_last_block_id() {
 SlottedPage *HeapFile::get_new() {
 
 
-
+    SlottedPage *slottedPage = new SlottedPage();
+    return slottedPage;
 }
-*/
+
