@@ -260,7 +260,7 @@ SlottedPage *HeapFile::get_new() {
 // test function -- returns true if all tests pass
 bool test_heap_file()
 {
-    HeapFile heapFile = new HeapFile("sample_db1");
+    HeapFile heapFile("sample_db1");
     heapFile.create();
     return true;
 }
