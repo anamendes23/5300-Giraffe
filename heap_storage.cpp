@@ -239,14 +239,10 @@ void HeapFile::drop() {
 
 SlottedPage *HeapFile::get(BlockID block_id) {
 
-    SlottedPage *slottedPage = new SlottedPage();
+    SlottedPage *slottedPage = NULL;
     return slottedPage;
 }
 
-u_int32_t HeapFile::get_last_block_id() {
-    u_int32_t block_id = 1;
-    return block_id;
-}
 
 SlottedPage *HeapFile::get_new() {
 
