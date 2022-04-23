@@ -250,8 +250,13 @@ u_int32_t HeapFile::get_last_block_id() {
 
 SlottedPage *HeapFile::get_new() {
 
-
-    SlottedPage *slottedPage = new SlottedPage();
-    return slottedPage;
+    char block[SlottedPage::BLOCK_SZ];
+    Dbt data(block, sizeof(block));
+    int block_number;
+    Dbt key(&block_number, sizeof(block_number));
+    block_number = this->last + 1;
+    SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
+    this->db.put(NULL, &key, &data, 0);
+    return  slottedPage;
 }
 
