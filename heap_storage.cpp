@@ -182,3 +182,72 @@ bool test_heap_storage()
 
     return true;
 }
+
+/* Heap File*/
+
+void HeapFile::create(void) {
+    this->db_open(DB_CREATE);
+    SlottedPage *slottedPage = this->get_new();
+    delete slottedPage;
+}
+
+void HeapTable::close() {
+    this->db.close();
+    this->closed = true;
+}
+
+BlockIDs *HeapFile::block_ids() {
+    BlockIDs *blockIDs = new BlockIDs();
+    for(BlockID i = 1; i <= this->last; i++)
+    {
+        blockIDs->pop_back(i);
+    }
+    return blockIDs;
+}
+void HeapFile::open() {
+    this->db_open();
+}
+
+void HeapFile::db_open(uint flags) {
+    if (this->closed) {
+        db.set_message_stream(_DB_ENV.get_message_stream());
+        db.set_error_stream(_DB_ENV.get_error_stream());
+        db.set_re_len(DbBlock::BLOCK_SZ);
+        this->dbfilename = _DB_ENV + "/" + this->name + ".db";
+        int result = this->db.open(NULL, this->dbfilename.c_str(), NULL, DB_RECNO, flags, 0644);
+        DB_BTREE_STAT stat;
+        this->db.stat(NULL, &stat, DB_FAST_STAT);
+        this->last = stat.bt_ndata;
+        if(result != 0)
+        {
+            this->close();
+        }
+        this->closed = false;
+
+
+    }
+}
+/*
+void HeapFile::put(DbBlock *block) {
+
+}
+
+
+void HeapFile::drop() {
+
+}
+
+SlottedPage *HeapFile::get(BlockID block_id) {
+
+}
+
+u_int32_t HeapFile::get_last_block_id() {
+
+}
+
+SlottedPage *HeapFile::get_new() {
+
+
+
+}
+*/
