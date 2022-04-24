@@ -326,8 +326,8 @@ bool test_heap_file()
     SlottedPage *slottedPage2 = heapFile.get_new();
     heapFile.put(slottedPage2);
     heapFile.get(slottedPage->get_block_id());
-    heapFile.close();
-   // heapFile.drop();
+    //heapFile.close();
+    heapFile.drop();
     cout << "close called";
     return true;
 }
