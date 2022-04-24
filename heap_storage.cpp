@@ -222,7 +222,9 @@ void HeapFile::db_open(uint flags) {
         this->db.open(nullptr, (this->dbfilename).c_str(), nullptr, DB_RECNO, flags, 0644);
         DB_BTREE_STAT *stat;
         this->db.stat(nullptr, &stat, DB_FAST_STAT);
+
         this->last = flags ? 0 : stat->bt_ndata;
+        cout << "last " << this->last << endl;
         this->closed = false;
     }
     cout << "HeapFile::db_open end"<< endl;
@@ -251,10 +253,11 @@ SlottedPage *HeapFile::get_new() {
     int block_number;
     Dbt key(&block_number, sizeof(block_number));
     block_number = this->last + 1;
+    cout << "block_number"<< block_number << endl;
     SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
     this->db.put(NULL, &key, &data, 0);
-    return  slottedPage;
     cout << "HeapFile::get_new end"<< endl;
+    return  slottedPage;
     // return NULL;
 }
 
