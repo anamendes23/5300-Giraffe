@@ -277,9 +277,10 @@ bool test_heap_file()
     HeapFile heapFile("sample_sonali");
     cout << "test_heap_file ::  heapFile initialised and db created" << endl;
 
-    heapFile.create();
-    cout << "\n test_heap_file heapFile create() called" << endl;
+    //heapFile.create();
+    //cout << "\n test_heap_file heapFile create() called" << endl;
     heapFile.open();
+    heapFile.get_new();
     heapFile.close();
     cout << "close called";
     return true;
