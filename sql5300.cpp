@@ -37,13 +37,13 @@ int main(int argc, char** argv) {
     env.set_error_stream(&std::cerr);
     env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
     _DB_ENV = &env;
-/*
+
     Db db(&env, 0);
     db.set_message_stream(env.get_message_stream());
     db.set_error_stream(env.get_error_stream());
     db.set_re_len(BLOCK_SZ);                                               // Set record length to 4K
     db.open(NULL, EXAMPLE, NULL, DB_RECNO, DB_CREATE | DB_TRUNCATE, 0644); // Erases anything already there
-*/
+
     // SQL entry
     while (true)
     {
