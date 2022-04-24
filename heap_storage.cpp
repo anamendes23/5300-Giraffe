@@ -219,7 +219,7 @@ void HeapFile::db_open(uint flags) {
         this->db.set_re_len(DbBlock::BLOCK_SZ);
         this->dbfilename =  this->name + ".db";
         int result = this->db.open(NULL, this->dbfilename.c_str(), NULL, DB_RECNO, DB_CREATE, 0644);
-        /*DB_BTREE_STAT stat;
+        DB_BTREE_STAT stat;
         this->db.stat(NULL, &stat, DB_FAST_STAT);
         this->last = stat.bt_ndata;
         if(result != 0)
@@ -227,7 +227,7 @@ void HeapFile::db_open(uint flags) {
             this->close();
         }
         this->closed = false;
-        cout << "closed :: " << this->closed;*/
+        cout << "closed :: " << this->closed;
     }
 }
 
@@ -270,8 +270,8 @@ bool test_heap_file()
     cout << "test_heap_file ::  heapFile initialised and db created" << endl;
 
     heapFile.create();
-    cout << "test_heap_file heapFile create() called" << endl;
+    cout << "\n test_heap_file heapFile create() called" << endl;
    // heapFile.close();
-    cout << "close called";
+   // cout << "close called";
     return true;
 }
