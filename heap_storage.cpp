@@ -264,8 +264,8 @@ void HeapFile::open() {
 void HeapFile::db_open(uint flags) {
     if (this->closed) {
         this->db.set_re_len(DbBlock::BLOCK_SZ);
-        this->dbfilename =  this->dbfilename + ".db";
-        cout << "HeapFile::db_open -> database filename " << this->dbfilename << endl;
+        this->dbfilename =  this->name + ".db";
+        cout << "HeapFile::db_open -> database filename " << this->name << endl;
         this->db.open(nullptr, (this->dbfilename).c_str(), nullptr, DB_RECNO, flags, 0644);
         DB_BTREE_STAT *stat;
         this->db.stat(nullptr, &stat, DB_FAST_STAT);
@@ -308,6 +308,10 @@ SlottedPage *HeapFile::get_new() {
     return  slottedPage;
 }
 
+u_int32_t HeapFile::get_last_block_id() {
+    cout << "HeapFile::get_last_block_id -> last" << this->last << endl;
+    return this->last;
+}
 
 // test function -- returns true if all tests pass
 bool test_heap_file(const char *filename)
@@ -316,14 +320,12 @@ bool test_heap_file(const char *filename)
     heapFile.create();
     SlottedPage *slottedPage = heapFile.get_new();
     heapFile.put(slottedPage);
-    SlottedPage *slottedPage1 = heapFile.get_new();
-    heapFile.put(slottedPage1);
-    SlottedPage *slottedPage2 = heapFile.get_new();
-    heapFile.put(slottedPage2);
     heapFile.get(slottedPage->get_block_id());
+    heapFile.get_last_block_id();
     heapFile.drop();
     return true;
 }
+
 
 /* --------------------------------HeapTable---------------------------------------*/
 
