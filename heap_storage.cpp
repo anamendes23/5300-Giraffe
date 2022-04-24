@@ -215,6 +215,8 @@ void HeapFile::open() {
 void HeapFile::db_open(uint flags) {
     cout << "HeapFile::db_open start"<< endl;
     cout << "flags"<<  flags << endl;
+    cout << "closed "<<  this->closed << endl;
+
     if (this->closed) {
         this->db.set_re_len(DbBlock::BLOCK_SZ);
        /* const char *path = nullptr;
