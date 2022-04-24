@@ -285,15 +285,15 @@ void HeapFile::put(DbBlock *block) {
 void HeapFile::drop() {
     this->close();
     Db db1(_DB_ENV,0);
+    cout << "HeapFile::drop -> dbfilename : " << this->dbfilename << endl;
     db1.remove(this->dbfilename.c_str(), nullptr, 0);
 }
 
 SlottedPage *HeapFile::get(BlockID block_id) {
-    cout << "block_id " << block_id <<endl;
     Dbt key(&block_id,sizeof(block_id));
     Dbt rdata;
     db.get(NULL, &key, &rdata, 0); // read block from the database
-    cout << "Read (block #" << block_id << "): '" << (char *)rdata.get_data() << "'";
+    cout << "HeapFile::get -> block_id : " << block_id << " data : " << (char *)rdata.get_data() << endl;
     SlottedPage *slottedPage = new SlottedPage(rdata, block_id, true);
     return slottedPage;
 }
