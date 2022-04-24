@@ -192,7 +192,7 @@ void HeapFile::initialize_db() {
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);
     env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
-    this->db(&env, 0);
+    this->db = Db(&env, 0);
 }
 
 
