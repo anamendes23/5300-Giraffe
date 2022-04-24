@@ -263,7 +263,7 @@ SlottedPage *HeapFile::get_new() {
 
 
 // test function -- returns true if all tests pass
-bool HeapFile::test_heap_file()
+bool test_heap_file()
 {
     cout << "test_heap_file called: " << endl;
     HeapFile heapFile("sample_db1");
