@@ -186,6 +186,7 @@ bool test_heap_storage()
 /* Heap File*/
 
 void HeapFile::create(void) {
+    cout << "Inside HeapFile::create";
     this->db_open(DB_CREATE);
     SlottedPage *slottedPage = this->get_new();
     delete slottedPage;
@@ -209,6 +210,8 @@ void HeapFile::open() {
 }
 
 void HeapFile::db_open(uint flags) {
+    cout << "Inside HeapFile::create ";
+    cout << "closed :: " << this->closed;
     if (this->closed) {
     //    db.set_message_stream(_DB_ENV->get_message_stream());
     //    db.set_error_stream(_DB_ENV->get_error_stream());
