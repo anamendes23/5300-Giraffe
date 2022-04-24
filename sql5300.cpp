@@ -9,6 +9,7 @@
 // CREATE A DIRECTORY IN YOUR HOME DIR ~/cpsc5300/data before running this
 const char *HOME = "cpsc5300/data";
 const char *EXAMPLE = "example.db";
+const char *FILENAME = "example";
 const unsigned int BLOCK_SZ = 4096;
 DbEnv *_DB_ENV;
 
@@ -59,7 +60,7 @@ int main(int argc, char** argv) {
 
         if (sql == "test") {
             cout << "test_heap_storage: " << (test_heap_storage() ? "ok" : "failed") << endl;
-            cout << "test_heap_file: " << (test_heap_file(EXAMPLE) ? "ok" : "failed") << endl;
+            cout << "test_heap_file: " << (test_heap_file(FILENAME) ? "ok" : "failed") << endl;
             continue;
         }
 
