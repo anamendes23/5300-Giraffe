@@ -84,6 +84,8 @@ class   HeapFile : public DbFile {
 public:
     HeapFile(std::string name);
 
+    virtual void initialize_db();
+
     virtual ~HeapFile() {}
 
     HeapFile(const HeapFile &other) = delete;

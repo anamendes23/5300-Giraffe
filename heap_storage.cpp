@@ -184,8 +184,7 @@ bool test_heap_storage()
     return true;
 }
 
-/* Heap File*/
-HeapFile::HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true){
+void HeapFile::initialize_db() {
     const char *home = std::getenv("HOME");
     std::string envdir = std::string(home) + "/" + this->dbfilename;
 
@@ -193,8 +192,13 @@ HeapFile::HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), cl
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);
     env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
-    Db db1(&env, 0);
-    this->db = &db1;
+    this->db(&env, 0);
+}
+
+
+/* Heap File*/
+HeapFile::HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true){
+    this->initialize_db();
 }
 
 void HeapFile::create() {
