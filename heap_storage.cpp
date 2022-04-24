@@ -195,7 +195,7 @@ void HeapFile::create() {
 }
 
 void HeapFile::close() {
-    //this->db.close(0);
+    this->db.close(0);
     this->closed = true;
 }
 
@@ -271,8 +271,8 @@ bool test_heap_file()
 
     heapFile.create();
     cout << "test_heap_file heapFile create() called" << endl;
-  //  heapFile.close();
-    cout << "hello" << endl;
+    heapFile.close();
+    cout << "close called" << endl;
 
     return true;
 }
