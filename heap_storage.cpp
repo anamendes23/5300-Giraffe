@@ -308,11 +308,6 @@ SlottedPage *HeapFile::get_new() {
     return  slottedPage;
 }
 
-u_int32_t HeapFile::get_last_block_id() {
-    cout << "HeapFile::get_last_block_id -> last" << this->last << endl;
-    return this->last;
-}
-
 // test function -- returns true if all tests pass
 bool test_heap_file(const char *filename)
 {
