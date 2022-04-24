@@ -310,15 +310,10 @@ SlottedPage *HeapFile::get_new() {
 
 
 // test function -- returns true if all tests pass
-bool test_heap_file()
+bool test_heap_file(char *filename)
 {
-    cout << "test_heap_file called: " << endl;
-    HeapFile heapFile("sample_sonali");
-    cout << "test_heap_file ::  heapFile initialised and db created" << endl;
+    HeapFile heapFile(filename);
     heapFile.create();
-    cout << "\n test_heap_file heapFile create() called" << endl;
-    //heapFile.close();
-    //heapFile.open();
     SlottedPage *slottedPage = heapFile.get_new();
     heapFile.put(slottedPage);
     SlottedPage *slottedPage1 = heapFile.get_new();
@@ -326,9 +321,7 @@ bool test_heap_file()
     SlottedPage *slottedPage2 = heapFile.get_new();
     heapFile.put(slottedPage2);
     heapFile.get(slottedPage->get_block_id());
-    //heapFile.close();
     heapFile.drop();
-    cout << "close called";
     return true;
 }
 
