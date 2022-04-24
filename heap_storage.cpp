@@ -289,6 +289,7 @@ void HeapFile::drop() {
 }
 
 SlottedPage *HeapFile::get(BlockID block_id) {
+    cout << "block_id " << block_id <<endl;
     Dbt key(&block_id,sizeof(block_id));
     Dbt rdata;
     db.get(NULL, &key, &rdata, 0); // read block from the database
@@ -326,7 +327,7 @@ bool test_heap_file()
     heapFile.put(slottedPage2);
     heapFile.get(slottedPage->get_block_id());
     heapFile.close();
-    heapFile.drop();
+   // heapFile.drop();
     cout << "close called";
     return true;
 }
