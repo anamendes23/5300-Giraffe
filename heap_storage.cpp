@@ -188,7 +188,7 @@ bool test_heap_storage()
 
 void HeapFile::create() {
     cout << "Inside HeapFile::create";
-    this->db_open(DB_CREATE);
+    this->db_open();
     SlottedPage *slottedPage = this->get_new();
     delete slottedPage;
 }
@@ -218,7 +218,7 @@ void HeapFile::db_open(uint flags) {
     //    db.set_error_stream(_DB_ENV->get_error_stream());
         db.set_re_len(DbBlock::BLOCK_SZ);
         this->dbfilename =  this->name + ".db";
-        int result = this->db.open(NULL, this->dbfilename.c_str(), NULL, DB_RECNO, flags, 0644);
+        int result = this->db.open(NULL, this->dbfilename.c_str(), NULL, DB_RECNO, DB_CREATE, 0644);
         DB_BTREE_STAT stat;
         this->db.stat(NULL, &stat, DB_FAST_STAT);
         this->last = stat.bt_ndata;
