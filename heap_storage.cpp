@@ -237,7 +237,7 @@ void HeapFile::db_open(uint flags) {
 void HeapFile::put(DbBlock *block) {
     BlockID  blockId = block->get_block_id();
     Dbt block(&blockId,sizeof(blockId));
-    this->db.put(nullptr, &block, block->get_block(),0);
+    this->db.put(nullptr, block, block->get_block(),0);
 }
 
 
