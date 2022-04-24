@@ -28,9 +28,8 @@ int main(int argc, char** argv) {
     if (argc != 2){
         return 1;
     }
-    HOME = argv[1];
     const char *home = std::getenv("HOME");
-    std::string envdir = std::string(home) + "/" + HOME;
+    std::string envdir = std::string(home) + "/" + argv[1];
     cout << "Env Dir ::" << envdir << endl;
     DbEnv env(0U);
     env.set_message_stream(&std::cout);
