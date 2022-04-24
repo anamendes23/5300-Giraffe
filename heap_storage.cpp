@@ -189,7 +189,7 @@ bool test_heap_storage()
 
 void HeapFile::create() {
     cout << "Inside HeapFile::create"<< endl;
-    this->db_open(DB_CREATE);
+    this->db_open(DB_CREATE | DB_EXCL);
     SlottedPage *slottedPage = this->get_new();
     this->put(slottedPage);
     delete slottedPage;
