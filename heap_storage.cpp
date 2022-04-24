@@ -263,7 +263,7 @@ SlottedPage *HeapFile::get_new() {
 bool test_heap_file()
 {
     cout << "test_heap_file called: " << endl;
-    HeapFile heapFile("sample");
+    HeapFile heapFile("sample_sonali");
     cout << "test_heap_file ::  heapFile initialised and db created" << endl;
 
     heapFile.create();
