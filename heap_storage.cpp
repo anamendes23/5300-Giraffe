@@ -190,7 +190,7 @@ void HeapFile::create() {
     cout << "Inside HeapFile::create";
     this->db_open(0);
     SlottedPage *slottedPage = this->get_new();
-    delete slottedPage;
+  //  delete slottedPage;
 }
 
 void HeapFile::close() {
@@ -255,9 +255,10 @@ SlottedPage *HeapFile::get_new() {
     int block_number;
     Dbt key(&block_number, sizeof(block_number));
     block_number = this->last + 1;
-    SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
-    this->db.put(NULL, &key, &data, 0);
-    return  slottedPage;
+   // SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
+    //this->db.put(NULL, &key, &data, 0);
+   // return  slottedPage;
+   return NULL;
 }
 
 
