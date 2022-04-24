@@ -281,8 +281,8 @@ bool test_heap_file()
     //cout << "\n test_heap_file heapFile create() called" << endl;
     //heapFile.close();
     heapFile.open();
-    DbBlock dbBlock = heapFile.get_new();
-    heapFile.put(dbBlock);
+    SlottedPage *slottedPage = heapFile.get_new();
+    heapFile.put(slottedPage);
     heapFile.close();
     cout << "close called";
     return true;
