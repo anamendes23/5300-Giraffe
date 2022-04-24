@@ -30,7 +30,6 @@ int main(int argc, char** argv) {
     }
     const char *home = std::getenv("HOME");
     std::string envdir = std::string(home) + "/" + argv[1];
-    cout << "Env Dir ::" << envdir << endl;
     DbEnv env(0U);
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);

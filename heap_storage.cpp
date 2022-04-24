@@ -188,7 +188,6 @@ bool test_heap_storage()
 /* Heap File*/
 
 void HeapFile::create() {
-    cout << "Inside HeapFile::create"<< endl;
     this->db_open(DB_CREATE | DB_EXCL);
     SlottedPage *slottedPage = this->get_new();
     this->put(slottedPage);
@@ -213,26 +212,16 @@ void HeapFile::open() {
 }
 
 void HeapFile::db_open(uint flags) {
-    cout << "HeapFile::db_open start"<< endl;
-    cout << "flags"<<  flags << endl;
-    cout << "closed "<<  this->closed << endl;
-
     if (this->closed) {
         this->db.set_re_len(DbBlock::BLOCK_SZ);
-       /* const char *path = nullptr;
-        _DB_ENV->get_home(&path);
-        */
-        cout << "dbfilename " << this->dbfilename << endl;
-        this->dbfilename = "./" + this->dbfilename + ".db";
+        this->dbfilename =  this->dbfilename + ".db";
+        cout << "HeapFile::db_open -> database filename " << this->dbfilename << endl;
         this->db.open(nullptr, (this->dbfilename).c_str(), nullptr, DB_RECNO, flags, 0644);
         DB_BTREE_STAT *stat;
         this->db.stat(nullptr, &stat, DB_FAST_STAT);
-
         this->last = flags != 0 ? 0 : stat->bt_ndata;
-        cout << "last " << this->last << endl;
         this->closed = false;
     }
-    cout << "HeapFile::db_open end"<< endl;
 }
 
 void HeapFile::put(DbBlock *block) {
