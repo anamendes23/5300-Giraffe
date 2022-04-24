@@ -236,9 +236,10 @@ void HeapFile::db_open(uint flags) {
 
 void HeapFile::put(DbBlock *block) {
     BlockID blockId = block->get_block_id();
-    cout << "blockId" << blockId << endl;
     Dbt key(&blockId,sizeof(blockId));
+    cout << "HeapFile::put with blockid = "<< blockId << endl;
     this->db.put(nullptr, &key, block->get_block(),0);
+    cout << "HeapFile::put with blockid after put "<< blockId << endl;
 }
 
 
@@ -254,19 +255,11 @@ SlottedPage *HeapFile::get(BlockID block_id) {
 
 
 SlottedPage *HeapFile::get_new() {
-    cout << "HeapFile::get_new start"<< endl;
     char block[SlottedPage::BLOCK_SZ];
     Dbt data(block, sizeof(block));
-    cout << "block "<< block << endl;
-    cout << "block sizeof "<< sizeof(block) << endl;
-    int block_number;
-    Dbt key(&block_number, sizeof(block_number));
-    block_number = this->last + 1;
     this->last++;
-    cout << "block_number"<< block_number << endl;
     SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
-//    this->db.put(NULL, &key, &data, 0);
-    cout << "HeapFile::get_new end"<< endl;
+    cout << "HeapFile::get_new ending with last = "<< this->last << endl;
     return  slottedPage;
 }
 
