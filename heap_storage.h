@@ -80,9 +80,11 @@ protected:
         for buffer management and file management.
         Uses SlottedPage for storing records within blocks.
  */
-class HeapFile : public DbFile {
+class   HeapFile : public DbFile {
 public:
-    HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true), db(NULL, 0) {}
+    HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true), db(NULL, 0) {
+        cout << "HeapFile constructor calling";
+    }
 
     virtual ~HeapFile() {}
 
