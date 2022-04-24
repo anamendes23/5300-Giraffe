@@ -195,8 +195,8 @@ void HeapFile::create() {
 }
 
 void HeapFile::close() {
-    db.close(0);
-    closed = true;
+    this->db.close(0);
+    this->closed = true;
 }
 
 BlockIDs *HeapFile::block_ids() {
