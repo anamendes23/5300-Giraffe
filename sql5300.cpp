@@ -9,7 +9,7 @@
 // CREATE A DIRECTORY IN YOUR HOME DIR ~/cpsc5300/data before running this
 const char *HOME = "cpsc5300/data";
 const char *EXAMPLE = "example.db";
-const char *FILENAME = "example";
+const char *FILENAME = "example_data";
 const unsigned int BLOCK_SZ = 4096;
 DbEnv *_DB_ENV;
 
