@@ -83,7 +83,7 @@ protected:
 class   HeapFile : public DbFile {
 public:
     HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true), db(NULL, 0) {
-        cout << "HeapFile constructor calling";
+        std::cout << "HeapFile constructor calling";
     }
 
     virtual ~HeapFile() {}
