@@ -193,8 +193,8 @@ HeapFile::HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), cl
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);
     env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
-    Db db1(&env, u_int32_t(0));
-    this->db = db1;
+    Db *db1(&env, u_int32_t(0));
+    this->db(db1);
 
 }
 
