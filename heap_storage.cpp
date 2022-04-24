@@ -271,7 +271,7 @@ bool HeapFile::test_heap_file()
 
     heapFile.create();
     cout << "test_heap_file heapFile create() called" << endl;
-    close();
+    heapFile.close();
     cout << "close called" << endl;
 
     return true;

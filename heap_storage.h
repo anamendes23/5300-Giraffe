@@ -112,7 +112,6 @@ public:
 
     virtual u_int32_t get_last_block_id() { return last; }
 
-    virtual bool test_heap_file();
 protected:
     std::string dbfilename;
     u_int32_t last;
@@ -177,3 +176,4 @@ protected:
 };
 
 bool test_heap_storage();
+bool test_heap_file();
