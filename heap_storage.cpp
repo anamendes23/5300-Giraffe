@@ -266,7 +266,6 @@ bool test_heap_file()
     cout << "test_heap_file called: " << endl;
     HeapFile heapFile("sample_db1");
     cout << "test_heap_file ::  heapFile initialised and db created" << endl;
-    cout << "test_heap_file " << heapFile;
 
     heapFile.create();
     cout << "test_heap_file heapFile create() called" << endl;
