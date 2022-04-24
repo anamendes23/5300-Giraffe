@@ -229,12 +229,11 @@ void HeapFile::put(DbBlock *block) {
     Dbt key(&blockId,sizeof(blockId));
     cout << "HeapFile::put with blockid = "<< blockId << endl;
     this->db.put(nullptr, &key, block->get_block(),0);
-    cout << "HeapFile::put with blockid after put "<< blockId << endl;
 }
 
 
 void HeapFile::drop() {
-
+    this->db.remove((this->dbfilename).c_str(), nullptr, 0);
 }
 
 SlottedPage *HeapFile::get(BlockID block_id) {
