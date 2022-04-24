@@ -187,13 +187,13 @@ bool test_heap_storage()
 /* Heap File*/
 HeapFile::HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true){
     const char *home = std::getenv("HOME");
-    std::string envdir = std::string(home) + "/" + HOME;
+    std::string envdir = std::string(home) + "/" + this->dbfilename;
 
     DbEnv env(0U);
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);
     env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
-    db(env, 0)
+    this->db(env, 0);
 
 }
 
