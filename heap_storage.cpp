@@ -238,7 +238,7 @@ void HeapFile::put(DbBlock *block) {
     BlockID blockId = block->get_block_id();
     cout << "blockId" << blockId << endl;
     Dbt key(&blockId,sizeof(blockId));
-    //this->db.put(nullptr, &block, block->get_block(),0);
+    this->db.put(nullptr, &key, block->get_block(),0);
 }
 
 
