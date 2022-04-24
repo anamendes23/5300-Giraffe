@@ -245,7 +245,7 @@ SlottedPage *HeapFile::get(BlockID block_id) {
 
 
 SlottedPage *HeapFile::get_new() {
-
+    cout << "HeapFile::get_new start"<< endl;
     char block[SlottedPage::BLOCK_SZ];
     Dbt data(block, sizeof(block));
     int block_number;
@@ -253,8 +253,9 @@ SlottedPage *HeapFile::get_new() {
     block_number = this->last + 1;
     SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
     this->db.put(NULL, &key, &data, 0);
-    // return  slottedPage;
-   return NULL;
+    return  slottedPage;
+    cout << "HeapFile::get_new end"<< endl;
+    // return NULL;
 }
 
 
