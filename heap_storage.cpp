@@ -191,6 +191,7 @@ void HeapFile::create() {
     cout << "Inside HeapFile::create"<< endl;
     this->db_open(DB_CREATE);
     SlottedPage *slottedPage = this->get_new();
+    this->put(slottedPage);
     delete slottedPage;
 }
 
