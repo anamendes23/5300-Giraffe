@@ -310,7 +310,7 @@ SlottedPage *HeapFile::get_new() {
 
 
 // test function -- returns true if all tests pass
-bool test_heap_file(char *filename)
+bool test_heap_file(const char *filename)
 {
     HeapFile heapFile(filename);
     heapFile.create();

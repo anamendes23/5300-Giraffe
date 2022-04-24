@@ -176,4 +176,4 @@ protected:
 };
 
 bool test_heap_storage();
-bool test_heap_file(char *filename);
+bool test_heap_file(const char *filename);
