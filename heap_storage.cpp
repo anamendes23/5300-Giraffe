@@ -191,7 +191,6 @@ void HeapFile::create() {
     cout << "Inside HeapFile::create"<< endl;
     this->db_open(DB_CREATE);
     SlottedPage *slottedPage = this->get_new();
-    this->get_new();
     delete slottedPage;
 }
 
@@ -204,7 +203,7 @@ BlockIDs *HeapFile::block_ids() {
     BlockIDs *blockIDs = new BlockIDs();
     for(BlockID i = 1; i <= this->last; i++)
     {
-        //
+        blockIDs->push_back(i);
     }
     return blockIDs;
 }

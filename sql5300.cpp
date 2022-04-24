@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     if (argc != 2){
         return 1;
     }
-
+    HOME = argv[1];
     const char *home = std::getenv("HOME");
     std::string envdir = std::string(home) + "/" + HOME;
     cout << "Env Dir ::" << envdir << endl;
