@@ -214,10 +214,12 @@ void HeapFile::open() {
 
 void HeapFile::db_open(uint flags) {
     cout << "HeapFile::db_open start"<< endl;
+    cout << "flags"<<  flags << endl;
     if (this->closed) {
         this->db.set_re_len(DbBlock::BLOCK_SZ);
-        const char *path = nullptr;
+       /* const char *path = nullptr;
         _DB_ENV->get_home(&path);
+        */
         cout << "dbfilename " << this->dbfilename << endl;
         this->dbfilename = "./" + this->dbfilename + ".db";
         this->db.open(nullptr, (this->dbfilename).c_str(), nullptr, DB_RECNO, flags, 0644);
@@ -275,7 +277,8 @@ bool test_heap_file()
 
     heapFile.create();
     cout << "\n test_heap_file heapFile create() called" << endl;
-   // heapFile.close();
-   // cout << "close called";
+    heapFile.open();
+    heapFile.close();
+    cout << "close called";
     return true;
 }
