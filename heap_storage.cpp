@@ -236,8 +236,8 @@ void HeapFile::db_open(uint flags) {
 
 void HeapFile::put(DbBlock *block) {
     BlockID  blockId = block->get_block_id();
-    Dbt block(blockId,sizeof(blockId));
-    this->db.put(nullptr, block, block.get_block(),0);
+    Dbt block(&blockId,sizeof(blockId));
+    this->db.put(nullptr, &block, block->get_block(),0);
 }
 
 
@@ -280,9 +280,8 @@ bool test_heap_file()
     //cout << "\n test_heap_file heapFile create() called" << endl;
     //heapFile.close();
     heapFile.open();
-    SlottedPage *slottedPage =  heapFile.get_new();
-
-    heapFile.put(slottedPage);
+    DbBlock *dbBlock =  heapFile.get_new();
+    heapFile.put(dbBlock);
     heapFile.close();
     cout << "close called";
     return true;
