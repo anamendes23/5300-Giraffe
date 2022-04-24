@@ -184,22 +184,8 @@ bool test_heap_storage()
     return true;
 }
 
-void HeapFile::initialize_db() {
-    const char *home = std::getenv("HOME");
-    std::string envdir = std::string(home) + "/" + this->dbfilename;
-
-    DbEnv env(0U);
-    env.set_message_stream(&std::cout);
-    env.set_error_stream(&std::cerr);
-    env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
-    this->db = Db(&env, 0);
-}
-
 
 /* Heap File*/
-HeapFile::HeapFile(std::string name) : DbFile(name), dbfilename(""), last(0), closed(true){
-    this->initialize_db();
-}
 
 void HeapFile::create() {
     cout << "Inside HeapFile::create";
@@ -271,9 +257,8 @@ SlottedPage *HeapFile::get_new() {
     Dbt key(&block_number, sizeof(block_number));
     block_number = this->last + 1;
     SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
- //   this->db.put(NULL, &key, &data, 0);
-    this->db.put(NULL , &key, &data, 0);
-
+    this->db.put(NULL, &key, &data, 0);
+   
     // return  slottedPage;
    return NULL;
 }

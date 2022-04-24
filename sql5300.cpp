@@ -10,6 +10,7 @@
 const char *HOME = "cpsc5300/data";
 const char *EXAMPLE = "example.db";
 const unsigned int BLOCK_SZ = 4096;
+DbEnv *_DB_ENV;
 
 using namespace std;
 using namespace hsql;
@@ -35,6 +36,7 @@ int main(int argc, char** argv) {
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);
     env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
+    _DB_ENV = &env;
 
     Db db(&env, 0);
     db.set_message_stream(env.get_message_stream());
