@@ -250,6 +250,8 @@ SlottedPage *HeapFile::get_new() {
     cout << "HeapFile::get_new start"<< endl;
     char block[SlottedPage::BLOCK_SZ];
     Dbt data(block, sizeof(block));
+    cout << "block "<< block << endl;
+    cout << "block sizeof "<< sizeof(block) << endl;
     int block_number;
     Dbt key(&block_number, sizeof(block_number));
     block_number = this->last + 1;
