@@ -196,7 +196,7 @@ void HeapFile::create() {
 }
 
 void HeapFile::close() {
-//    this->db.close(0);
+    this->db.close(0);
     closed = true;
 }
 
@@ -226,7 +226,7 @@ void HeapFile::db_open(uint flags) {
         DB_BTREE_STAT *stat;
         this->db.stat(nullptr, &stat, DB_FAST_STAT);
 
-        this->last = flags ? 0 : stat->bt_ndata;
+        this->last = flags != 0 ? 0 : stat->bt_ndata;
         cout << "last " << this->last << endl;
         this->closed = false;
     }
