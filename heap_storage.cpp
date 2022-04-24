@@ -256,7 +256,7 @@ SlottedPage *HeapFile::get_new() {
     Dbt key(&block_number, sizeof(block_number));
     block_number = this->last + 1;
     SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
-    //this->db.put(NULL, &key, &data, 0);
+    this->db.put(NULL, &key, &data, 0);
    // return  slottedPage;
    return NULL;
 }
