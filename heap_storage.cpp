@@ -2,6 +2,7 @@
 #include <cstring>
 #include <bitset>
 #include <iostream>
+#include "db_cxx.h"
 
 using namespace std;
 
@@ -185,7 +186,7 @@ bool test_heap_storage()
 
 /* Heap File*/
 
-void HeapFile::create(void) {
+void HeapFile::create() {
     cout << "Inside HeapFile::create";
     this->db_open(DB_CREATE);
     SlottedPage *slottedPage = this->get_new();
@@ -269,5 +270,6 @@ bool test_heap_file()
 
     heapFile.create();
     cout << "test_heap_file heapFile create() called" << endl;
+    heapFile.close();
     return true;
 }
