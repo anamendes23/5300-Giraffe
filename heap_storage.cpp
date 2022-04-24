@@ -217,9 +217,9 @@ void HeapFile::db_open(uint flags) {
     //    db.set_message_stream(_DB_ENV->get_message_stream());
     //    db.set_error_stream(_DB_ENV->get_error_stream());
         this->db.set_re_len(DbBlock::BLOCK_SZ);
-        /*this->dbfilename =  this->name + ".db";
+        this->dbfilename =  this->name + ".db";
         int result = this->db.open(NULL, this->dbfilename.c_str(), NULL, DB_RECNO, DB_CREATE, 0644);
-        DB_BTREE_STAT stat;
+        /*DB_BTREE_STAT stat;
         this->db.stat(NULL, &stat, DB_FAST_STAT);
         this->last = stat.bt_ndata;
         if(result != 0)
