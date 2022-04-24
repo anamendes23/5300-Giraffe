@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
     const char *home = std::getenv("HOME");
     std::string envdir = std::string(home) + "/" + HOME;
-
+    cout << "Env Dir ::" << envdir << endl;
     DbEnv env(0U);
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);

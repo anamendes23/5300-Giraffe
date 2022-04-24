@@ -188,7 +188,7 @@ bool test_heap_storage()
 /* Heap File*/
 
 void HeapFile::create() {
-    cout << "Inside HeapFile::create";
+    cout << "Inside HeapFile::create"<< endl;
     this->db_open(DB_CREATE);
  //   SlottedPage *slottedPage = this->get_new();
   //  delete slottedPage;
@@ -212,7 +212,7 @@ void HeapFile::open() {
 }
 
 void HeapFile::db_open(uint flags) {
-    cout << "HeapFile::db_open start";
+    cout << "HeapFile::db_open start"<< endl;
     if (this->closed) {
         this->db.set_re_len(DbBlock::BLOCK_SZ);
         const char *path = nullptr;
@@ -225,7 +225,7 @@ void HeapFile::db_open(uint flags) {
         this->last = flags ? 0 : stat->bt_ndata;
         this->closed = false;
     }
-    cout << "HeapFile::db_open end";
+    cout << "HeapFile::db_open end"<< endl;
 }
 
 void HeapFile::put(DbBlock *block) {
