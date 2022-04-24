@@ -218,7 +218,7 @@ void HeapFile::db_open(uint flags) {
         const char *path = nullptr;
         _DB_ENV->get_home(&path);
         cout << "dbfilename " << this->dbfilename << endl;
-        this->dbfilename = this->dbfilename + ".db";
+        this->dbfilename = "./" + this->dbfilename + ".db";
         this->db.open(nullptr, (this->dbfilename).c_str(), nullptr, DB_RECNO, flags, 0644);
         DB_BTREE_STAT *stat;
         this->db.stat(nullptr, &stat, DB_FAST_STAT);
