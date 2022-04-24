@@ -213,7 +213,6 @@ void HeapFile::open() {
 
 void HeapFile::db_open(uint flags) {
     cout << "Inside HeapFile::create ";
-    cout << "closed :: " << this->closed;
     if (this->closed) {
     //    db.set_message_stream(_DB_ENV->get_message_stream());
     //    db.set_error_stream(_DB_ENV->get_error_stream());
@@ -228,8 +227,7 @@ void HeapFile::db_open(uint flags) {
             this->close();
         }
         this->closed = false;
-
-
+        cout << "closed :: " << this->closed;
     }
 }
 
@@ -257,7 +255,7 @@ SlottedPage *HeapFile::get_new() {
     Dbt key(&block_number, sizeof(block_number));
     block_number = this->last + 1;
     SlottedPage *slottedPage = new SlottedPage(data, this->last, true);
-    this->db.put(NULL, &key, &data, 0);
+//    this->db.put(NULL, &key, &data, 0);
 
     // return  slottedPage;
    return NULL;
