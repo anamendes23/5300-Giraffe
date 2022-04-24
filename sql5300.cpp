@@ -61,7 +61,8 @@ int main(int argc, char** argv) {
 
         if (sql == "test") {
             cout << "test_heap_storage: " << (test_heap_storage() ? "ok" : "failed") << endl;
-            cout << "test_heap_file" << endl;
+            test_heap_file();
+            cout << "test_heap_file: " << endl;
             continue;
         }
 
