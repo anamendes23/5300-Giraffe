@@ -195,7 +195,7 @@ void HeapFile::create() {
 }
 
 void HeapFile::close() {
-    this->db.close(0);
+    //this->db.close(0);
     this->closed = true;
 }
 
@@ -212,7 +212,7 @@ void HeapFile::open() {
 }
 
 void HeapFile::db_open(uint flags) {
-    cout << "Inside HeapFile::create ";
+    cout << "Inside HeapFile::db_open ";
     if (this->closed) {
     //    db.set_message_stream(_DB_ENV->get_message_stream());
     //    db.set_error_stream(_DB_ENV->get_error_stream());
