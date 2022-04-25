@@ -216,6 +216,9 @@ bool test_heap_storage()
     }
 
     slotted_page.put(1, bye_data);
+
+    delete result_data;
+
     result_data = slotted_page.get(id);
     expected = bye;
     actual = (char*)result_data->get_data();
@@ -226,12 +229,14 @@ bool test_heap_storage()
 
     slotted_page.del(id);
 
+    delete recordIds;
     recordIds = slotted_page.ids();
 
     if (recordIds->size() != 0) {
         return false;
     }
 
+    delete result_data;
     delete recordIds;
 
     return true;
