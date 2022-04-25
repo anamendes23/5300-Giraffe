@@ -240,7 +240,6 @@ bool test_heap_storage()
 
     delete result_data;
     delete recordIds;
-    delete actual;
 
     return true;
 }
