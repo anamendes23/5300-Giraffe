@@ -308,7 +308,7 @@ SlottedPage *HeapFile::get_new() {
     cout << "HeapFile::get_new ending with last = "<< this->last << endl;
     return  slottedPage;
 }
-x
+
 // test function -- returns true if all tests pass
 bool test_heap_file(const char *filename)
 {
