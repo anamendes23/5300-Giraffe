@@ -232,6 +232,8 @@ bool test_heap_storage()
         return false;
     }
 
+    delete recordIds;
+
     return true;
 }
 

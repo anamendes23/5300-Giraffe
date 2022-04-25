@@ -83,6 +83,10 @@ int main(int argc, char** argv) {
         }
         delete result;
     }
+
+    delete FILENAME;
+    delete EXAMPLE;
+    delete HOME;
     return EXIT_SUCCESS;
 }
 
