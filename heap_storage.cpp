@@ -325,7 +325,8 @@ bool test_heap_file(const char *filename)
     heapFile.create();
     SlottedPage *slottedPage = heapFile.get_new();
     heapFile.put(slottedPage);
-    heapFile.get(slottedPage->get_block_id());
+    delete slottedPage;
+    slottedPage = heapFile.get(slottedPage->get_block_id());
     delete slottedPage;
     heapFile.get_last_block_id();
     heapFile.drop();
