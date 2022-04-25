@@ -589,7 +589,9 @@ ValueDict* HeapTable::unmarshal(Dbt* data) {
     return row;
 }
 
-// test function for heap storage -- returns true if all tests pass
+/**
+ *  Test function for heap storage (given by instructor)-- returns true if all tests pass.
+ */
 bool test_heap_storage() {
 
     ColumnNames column_names;
