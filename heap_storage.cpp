@@ -270,6 +270,7 @@ void HeapFile::db_open(uint flags) {
         DB_BTREE_STAT *stat;
         this->db.stat(nullptr, &stat, DB_FAST_STAT);
         this->last = flags != 0 ? 0 : stat->bt_ndata;
+        delete stat;
         this->closed = false;
     }
 }
@@ -307,7 +308,7 @@ SlottedPage *HeapFile::get_new() {
     cout << "HeapFile::get_new ending with last = "<< this->last << endl;
     return  slottedPage;
 }
-
+x
 // test function -- returns true if all tests pass
 bool test_heap_file(const char *filename)
 {
@@ -316,6 +317,7 @@ bool test_heap_file(const char *filename)
     SlottedPage *slottedPage = heapFile.get_new();
     heapFile.put(slottedPage);
     heapFile.get(slottedPage->get_block_id());
+    delete slottedPage;
     heapFile.get_last_block_id();
     heapFile.drop();
     return true;
