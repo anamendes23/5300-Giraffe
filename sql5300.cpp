@@ -84,7 +84,10 @@ int main(int argc, char** argv) {
         delete result;
     }
 
-    delete home;
+    free(home);
+    free(HOME);
+    free(EXAMPLE);
+    free(FILENAME);
 
     return EXIT_SUCCESS;
 }
@@ -336,7 +339,3 @@ string OperatorExpressionToString(const Expr* expr)
 
     return op;
 }
-
-delete HOME;
-delete EXAMPLE;
-delete FILENAME;
