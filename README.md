@@ -22,3 +22,4 @@ The storage engine is made up of three layers: DbBlock, DbFile, and DbRelation.
 Created a program for the implementations for the Heap Storage Engine's version of each: SlottedPage, HeapFile, and HeapTable.
 
 Hand off:
+The video is added in a zip file in the project
