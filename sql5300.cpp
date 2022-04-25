@@ -84,11 +84,6 @@ int main(int argc, char** argv) {
         delete result;
     }
 
-    free(home);
-    free(HOME);
-    free(EXAMPLE);
-    free(FILENAME);
-
     return EXIT_SUCCESS;
 }
 
