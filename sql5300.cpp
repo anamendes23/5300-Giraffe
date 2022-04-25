@@ -86,8 +86,8 @@ int main(int argc, char** argv) {
 
     //delete FILENAME;
     //delete EXAMPLE;
-    delete HOME;
-    delete home;
+    //delete HOME;
+    //delete home;
     return EXIT_SUCCESS;
 }
 
