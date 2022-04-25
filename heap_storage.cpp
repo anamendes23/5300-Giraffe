@@ -166,6 +166,8 @@ void SlottedPage::slide(u16 start, u16 end) {
 
     this->end_free += shift;
     put_header();
+
+    delete currentIds;
 }
 
 // Get 2-byte integer at given offset in block.
@@ -238,6 +240,7 @@ bool test_heap_storage()
 
     delete result_data;
     delete recordIds;
+    delete actual;
 
     return true;
 }
