@@ -84,10 +84,11 @@ int main(int argc, char** argv) {
         delete result;
     }
 
-    //delete FILENAME;
-    //delete EXAMPLE;
-    //delete HOME;
-    //delete home;
+    delete home;
+    delete HOME;
+    delete EXAMPLE;
+    delete FILENAME;
+
     return EXIT_SUCCESS;
 }
 
