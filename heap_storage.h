@@ -175,5 +175,6 @@ protected:
     virtual ValueDict *unmarshal(Dbt *data);
 };
 
-bool test_heap_storage();
+bool test_storage_page();
 bool test_heap_file(const char *filename);
+bool test_heap_storage();
