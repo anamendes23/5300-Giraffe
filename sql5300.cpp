@@ -27,21 +27,24 @@ string getJoinType(JoinType type);
 
 int main(int argc, char** argv) {
     if (argc != 2){
-        return 1;
+        std::cout << " Usage: " << argv[0] << " [path to a writable directory]" << std::endl;
+        return EXIT_FAILURE;
     }
-    const char *home = std::getenv("HOME");
-    std::string envdir = std::string(home) + "/" + argv[1];
+
+    std::string envdir = argv[1];
     DbEnv env(0U);
     env.set_message_stream(&std::cout);
     env.set_error_stream(&std::cerr);
-    env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
+    try {
+        // env.open(home, DB_CREATE | DB_INIT_MPOOL, 0);
+        env.open(envdir.c_str(), DB_CREATE | DB_INIT_MPOOL, 0);
+        std::cout << "(sql5300: running with database environment at " << envdir << ")" << std::endl;
+    } catch (DbException &exc) {
+        std::cerr << "(sql5300: " << exc.what() << ")";
+        env.close(0);
+        exit(1);
+    }
     _DB_ENV = &env;
-
-    Db db(&env, 0);
-    db.set_message_stream(env.get_message_stream());
-    db.set_error_stream(env.get_error_stream());
-    db.set_re_len(BLOCK_SZ);                                               // Set record length to 4K
-    db.open(NULL, EXAMPLE, NULL, DB_RECNO, DB_CREATE | DB_TRUNCATE, 0644); // Erases anything already there
 
     // SQL entry
     while (true)
