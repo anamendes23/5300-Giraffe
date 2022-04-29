@@ -23,3 +23,13 @@ Created a program for the implementations for the Heap Storage Engine's version 
 
 Hand off:
 The video is added in a zip file in the project
+
+---
+
+_Sprint Otoño_
+
+Team:
+- Ana Mendes
+- Keerthana Thonupunuri
+
+Milestone 3:
