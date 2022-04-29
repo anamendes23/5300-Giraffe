@@ -2,7 +2,6 @@
 #include <cstring>
 #include <bitset>
 #include <iostream>
-#include "db_cxx.h"
 
 using namespace std;
 typedef u_int16_t u16;
@@ -49,7 +48,12 @@ Dbt* SlottedPage::get(RecordID record_id) {
         return nullptr;
     }
 
-    return new Dbt(this->address(loc), loc + size);
+    // from Remi - fixed memory issue
+    char* data = new char[size];
+    memcpy(data, this->address(loc), size);
+    // ----
+
+    return new Dbt(data, size);
 }
 
 /**
@@ -117,7 +121,7 @@ RecordIDs* SlottedPage::ids(void) {
  */
 bool SlottedPage::has_room(u16 size) {
     u16 available = this->end_free - (this->num_records + 1) * 4;
-    return size <= available;
+    return (size + 4) <= available;
 }
 
 void SlottedPage::get_header(u16& size, u16& loc, RecordID record_id) {
@@ -214,12 +218,15 @@ bool test_storage_page()
     string actual = (char*)result_data->get_data();
 
     if (expected != actual) {
+        delete result_data;
         return false;
     }
 
     RecordIDs* recordIds = slotted_page.ids();
 
     if (recordIds->size() != 1) {
+        delete result_data;
+        delete recordIds;
         return false;
     }
 
@@ -229,6 +236,8 @@ bool test_storage_page()
     actual = (char*)result_data->get_data();
 
     if (expected != actual) {
+        delete result_data;
+        delete recordIds;
         return false;
     }
 
@@ -237,9 +246,13 @@ bool test_storage_page()
     recordIds = slotted_page.ids();
 
     if (recordIds->size() != 0) {
+        delete result_data;
+        delete recordIds;
         return false;
     }
 
+    delete result_data;
+    delete recordIds;
     return true;
 }
 
@@ -330,6 +343,7 @@ bool test_heap_file(const char* filename)
     heapFile.get(slottedPage->get_block_id());
     heapFile.get_last_block_id();
     heapFile.drop();
+    delete slottedPage;
     return true;
 }
 
@@ -388,7 +402,10 @@ void HeapTable::drop() {
  */
 Handle HeapTable::insert(const ValueDict* row) {
     this->open();
-    return this->append(this->validate(row));
+    ValueDict *full_row = this->validate(row);
+    Handle handle = this->append(full_row);
+    delete full_row;
+    return handle;
 }
 
 /**
@@ -547,10 +564,9 @@ Dbt* HeapTable::marshal(const ValueDict* row) {
     }
     char* right_size_bytes = new char[offset];
     memcpy(right_size_bytes, bytes, offset);
-
-    delete[] bytes;
-
     Dbt* data = new Dbt(right_size_bytes, offset);
+    delete[] bytes;
+    // delete[] right_size_bytes;
     return data;
 }
 
@@ -585,7 +601,7 @@ ValueDict* HeapTable::unmarshal(Dbt* data) {
             throw DbRelationError("Only know how to unmarshal INT and TEXT");
         }
     }
-
+    delete[] result_data;
     return row;
 }
 
@@ -628,14 +644,22 @@ bool test_heap_storage() {
     std::cout << "project ok" << std::endl;
 
     Value value = (*result)["a"];
-    if (value.n != 12)
+    if (value.n != 12) {
+        delete handles;
+        delete result;
         return false;
+    }
 
     value = (*result)["b"];
-    if (value.s != "Hello!")
+    if (value.s != "Hello!") {
+        delete handles;
+        delete result;
         return false;
+    }
 
     table.drop();
+    delete handles;
+    delete result;
     return true;
 }
 
