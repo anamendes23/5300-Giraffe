@@ -225,34 +225,36 @@ bool test_storage_page()
     RecordIDs* recordIds = slotted_page.ids();
 
     if (recordIds->size() != 1) {
-        delete result_data;
         delete recordIds;
         return false;
     }
 
     slotted_page.put(1, bye_data);
-    result_data = slotted_page.get(id);
+    Dbt* result_data2 = slotted_page.get(id);
     expected = bye;
-    actual = (char*)result_data->get_data();
+    actual = (char*)result_data2->get_data();
 
     if (expected != actual) {
         delete result_data;
+        delete result_data2;
         delete recordIds;
         return false;
     }
 
     slotted_page.del(id);
+    RecordIDs* recordIds2 = slotted_page.ids();
 
-    recordIds = slotted_page.ids();
-
-    if (recordIds->size() != 0) {
+    if (recordIds2->size() != 0) {
         delete result_data;
+        delete result_data2;
         delete recordIds;
         return false;
     }
 
     delete result_data;
+    delete result_data2;
     delete recordIds;
+    delete recordIds2;
     return true;
 }
 
@@ -314,11 +316,11 @@ void HeapFile::drop() {
 
 SlottedPage* HeapFile::get(BlockID block_id) {
     char block[DbBlock::BLOCK_SZ];
+    std::memset(block, 0, sizeof(block));
     Dbt data(block, sizeof(block));
     Dbt key(&block_id, sizeof(block_id));
 
     this->db.get(nullptr, &key, &data, 0); // read block from the database
-    cout << "HeapFile::get -> block_id : " << block_id << " data : " << (char*)data.get_data() << endl;
     SlottedPage* slottedPage = new SlottedPage(data, block_id, false);
     return slottedPage;
 }
@@ -340,10 +342,13 @@ bool test_heap_file(const char* filename)
     heapFile.create();
     SlottedPage* slottedPage = heapFile.get_new();
     heapFile.put(slottedPage);
-    heapFile.get(slottedPage->get_block_id());
-    heapFile.get_last_block_id();
+    BlockID id = slottedPage->get_block_id();
+    SlottedPage* slottedPage2 = heapFile.get(id);
+    BlockID last = heapFile.get_last_block_id();
+    std::cout << "got last " << last << std::endl;
     heapFile.drop();
     delete slottedPage;
+    delete slottedPage2;
     return true;
 }
 
