@@ -225,6 +225,7 @@ bool test_storage_page()
     RecordIDs* recordIds = slotted_page.ids();
 
     if (recordIds->size() != 1) {
+        delete result_data;
         delete recordIds;
         return false;
     }

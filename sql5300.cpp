@@ -4,6 +4,7 @@
 #include <iostream>
 #include "db_cxx.h"
 #include "SQLParser.h"
+#include "SQLExec.h"
 #include "heap_storage.h"
 
 // CREATE A DIRECTORY IN YOUR HOME DIR ~/cpsc5300/data before running this
