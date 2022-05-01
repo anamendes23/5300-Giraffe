@@ -33,3 +33,9 @@ Team:
 - Keerthana Thonupunuri
 
 Milestone 3:
+
+Rudimentary implementation of a Schema Storage that support the following commands:
+* CREATE TABLE
+* DROP TABLE
+* SHOW TABLES
+* SHOW COLUMNS
