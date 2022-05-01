@@ -43,12 +43,16 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
 }
 
 QueryResult::~QueryResult() {
-    // FIXME
+    delete column_names;
+    delete column_attributes;
+    delete rows;
 }
-
 
 QueryResult *SQLExec::execute(const SQLStatement *statement) {
     // FIXME: initialize _tables table, if not yet present
+    if(tables == nullptr) {
+        tables = new Tables();
+    }
 
     try {
         switch (statement->type()) {
@@ -68,27 +72,27 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
 
 void
 SQLExec::column_definition(const ColumnDefinition *col, Identifier &column_name, ColumnAttribute &column_attribute) {
-    throw SQLExecError("not implemented");  // FIXME
+    throw SQLExecError("Column definition not implemented");  // FIXME
 }
 
 QueryResult *SQLExec::create(const CreateStatement *statement) {
-    return new QueryResult("not implemented"); // FIXME
+    return new QueryResult("Create not implemented"); // FIXME
 }
 
 // DROP ...
 QueryResult *SQLExec::drop(const DropStatement *statement) {
-    return new QueryResult("not implemented"); // FIXME
+    return new QueryResult("Drop not implemented"); // FIXME
 }
 
 QueryResult *SQLExec::show(const ShowStatement *statement) {
-    return new QueryResult("not implemented"); // FIXME
+    return new QueryResult("Show not implemented"); // FIXME
 }
 
 QueryResult *SQLExec::show_tables() {
-    return new QueryResult("not implemented"); // FIXME
+    return new QueryResult("Show tables not implemented"); // FIXME
 }
 
 QueryResult *SQLExec::show_columns(const ShowStatement *statement) {
-    return new QueryResult("not implemented"); // FIXME
+    return new QueryResult("Show columns not implemented"); // FIXME
 }
 

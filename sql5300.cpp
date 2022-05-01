@@ -1,3 +1,9 @@
+/**
+ * @file sql5300.cpp - main entry for the relation manager's SQL shell
+ * @author Ana Mendes
+ * @author Keerthana Thonupunuri
+ * @see "Seattle University, CPSC5300, Spring 2022"
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +11,7 @@
 #include "db_cxx.h"
 #include "SQLParser.h"
 #include "SQLExec.h"
-#include "heap_storage.h"
+#include "ParseTreeToString.h"
 
 // CREATE A DIRECTORY IN YOUR HOME DIR ~/cpsc5300/data before running this
 const char *HOME = "cpsc5300/data";
@@ -46,6 +52,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
     _DB_ENV = &env;
+    initialize_schema_tables();
 
     // SQL entry
     while (true)
@@ -54,14 +61,12 @@ int main(int argc, char** argv) {
         string sql;
         getline(cin, sql);
 
-        if (sql == "quit"){
-            break;
-        }
-
         if (sql.length() == 0){
             continue;
         }
-
+        if (sql == "quit"){
+            break;
+        }
         if (sql == "test") {
             cout << "test_heap_page: " << (test_storage_page() ? "ok" : "failed") << endl;
             cout << "test_heap_file: " << (test_heap_file(FILENAME) ? "ok" : "failed") << endl;
@@ -76,19 +81,26 @@ int main(int argc, char** argv) {
         {
             cout << "inValid SQL:" << sql << endl;
             cout << result->errorMsg() << endl;
-            delete result;
             continue;
         }
         else
         {
             for (uint i = 0; i < result->size(); i++)
             {
-                cout << execute(result->getStatement(i)) << endl;
+                // from 5300-Instructor
+                const SQLStatement *statement = result->getStatement(i);
+                try {
+                    cout << ParseTreeToString::statement(statement) << endl;
+                    QueryResult *result = SQLExec::execute(statement);
+                    cout << *result << endl;
+                    delete result;
+                } catch (SQLExecError &e) {
+                    cout << "Error: " << e.what() << endl;
+                }
             }
         }
         delete result;
     }
-
     return EXIT_SUCCESS;
 }
 
