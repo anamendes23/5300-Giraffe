@@ -6,7 +6,7 @@ Team:
 - Marwa Saleh
 - Sonali Desrda
 
-Milestone 1:
+## Milestone 1:
 
 Program written in C++ that runs from the command line and prompts the user for SQL statements and then executes them one at a time, just like the mysql program.
 
@@ -16,7 +16,7 @@ $ make
 To run the program:
 $ ./sql5300 ~/cpsc5300/data
 
-Milestone 2:
+## Milestone 2:
 
 The storage engine is made up of three layers: DbBlock, DbFile, and DbRelation.
 Created a program for the implementations for the Heap Storage Engine's version of each: SlottedPage, HeapFile, and HeapTable.
@@ -32,10 +32,28 @@ Team:
 - Ana Mendes
 - Keerthana Thonupunuri
 
-Milestone 3:
+## Milestone 3:
 
 Rudimentary implementation of a Schema Storage that support the following commands:
 * CREATE TABLE
+#### Syntax:
+```
+<table_definition> ::= CREATE TABLE <table_name> (<column_definitions> )
+<column_definitions> ::= <column_definition> | <column_definition>, <column_definitions>
+<column_definition> ::= <column_name> <datatype>
+```
 * DROP TABLE
+#### Syntax:
+```
+<drop_table_statement> ::= DROP TABLE <table_name>
+```
 * SHOW TABLES
+#### Syntax:
+```
+<show_tables_statement> ::= SHOW TABLES
+```
 * SHOW COLUMNS
+#### Syntax:
+```
+<show_columns_statement> ::= SHOW COLUMNS FROM <table_name>
+```
