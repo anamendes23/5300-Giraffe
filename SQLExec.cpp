@@ -170,7 +170,16 @@ QueryResult *SQLExec::drop(const DropStatement *statement)
 QueryResult *SQLExec::show(const ShowStatement *statement)
 {
     // use the select and project methods directly for the SHOW commands
-    return new QueryResult("Show not implemented"); // FIXME
+    switch(statement->type) {
+        case ShowStatement::kTables:
+            return show_tables();
+            break;
+        case ShowStatement::kColumns:
+            return show_columns(statement);
+            break;
+        default:
+            throw new SQLExecError("statement not implemented " + statement->type);
+    }
 }
 
 QueryResult *SQLExec::show_tables()
