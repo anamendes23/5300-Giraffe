@@ -130,31 +130,30 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
 
             // now that columns were successfully added, get table and create it
             DbRelation &table = SQLExec::tables->get_table(table_name);
-            if(statement->ifNotExists) {
-                table.create_if_not_exists();
-            }
-            else {
-                table.create();
-            }
+            table.create();
         }
-        catch (SQLExecError &e) {
+        catch (DbRelationError &e) {
             try {
                 // undo insertions into _columns
                 for(auto const columnHandle : columnHandles) {
                     columns_table.del(columnHandle);
                 }
             }
-            catch (SQLExecError &e) {}
+            catch (DbRelationError &e) {}
+            // throw the exception for the next one to catch
+            throw;
         }
     }
-    catch (SQLExecError &e)
+    catch (DbRelationError &e)
     {
         try
         {
             // undo table insertion
             SQLExec::tables->del(tableHandle);
         }
-        catch (SQLExecError &e) {}
+        catch (DbRelationError &e) {}
+        // throw this exception to display error message in SQL shell
+        throw;
     }
 
     return new QueryResult("Created new table " + table_name);;
@@ -193,6 +192,7 @@ QueryResult *SQLExec::show_tables()
     // use project to get all entries from column "table_name"
     for(const Handle handle : *selectResult) {
         ValueDict *row = SQLExec::tables->project(handle, column_names);
+        // "_tables" and "_columns" is in the list too, filter out
         Identifier column_name = row->at("table_name").s;
         if (column_name != Tables::TABLE_NAME && column_name != Columns::TABLE_NAME){
             rows->push_back(row);
