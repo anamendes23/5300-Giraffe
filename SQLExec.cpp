@@ -105,7 +105,6 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
 {
     // get table and columns from the sql statement
     Identifier table_name = statement->tableName;
-
     // add table name to Tables
     ValueDict row;
     row["table_name"] = Value(table_name);
@@ -129,8 +128,8 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
                 columnHandles.push_back(columns_table.insert(&row)); 
             }
 
+            // now that columns were successfully added, get table and create it
             DbRelation &table = SQLExec::tables->get_table(table_name);
-
             if(statement->ifNotExists) {
                 table.create_if_not_exists();
             }
@@ -169,7 +168,6 @@ QueryResult *SQLExec::drop(const DropStatement *statement)
 
 QueryResult *SQLExec::show(const ShowStatement *statement)
 {
-    // use the select and project methods directly for the SHOW commands
     switch(statement->type) {
         case ShowStatement::kTables:
             return show_tables();
@@ -184,7 +182,26 @@ QueryResult *SQLExec::show(const ShowStatement *statement)
 
 QueryResult *SQLExec::show_tables()
 {
-    return new QueryResult("Show tables not implemented"); // FIXME
+    ColumnNames *column_names = new ColumnNames;
+    ColumnAttributes *column_attributes = new ColumnAttributes;
+    ValueDicts *rows = new ValueDicts();
+    // tables will only have one column name, which is table_name
+    // // attributes will always be TEXT
+    SQLExec::tables->get_columns("_tables", *column_names, *column_attributes);
+    // use select to get all entries from that table
+    Handles *selectResult = SQLExec::tables->select();
+    // use project to get all entries from column "table_name"
+    for(const Handle handle : *selectResult) {
+        ValueDict *row = SQLExec::tables->project(handle, column_names);
+        Identifier column_name = row->at("table_name").s;
+        if (column_name != Tables::TABLE_NAME && column_name != Columns::TABLE_NAME){
+            rows->push_back(row);
+        }
+    }
+    delete selectResult;
+    // message should contain the number of records returned.
+    string message = "successfully returned " + to_string(rows->size()) + " rows";
+    return new QueryResult(column_names, column_attributes, rows, message);
 }
 
 QueryResult *SQLExec::show_columns(const ShowStatement *statement)
