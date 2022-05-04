@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace hsql;
-
+//hello
 /*
  * we allocate and initialize the _DB_ENV global
  */
