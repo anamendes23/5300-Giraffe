@@ -162,8 +162,41 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
 // DROP ...
 QueryResult *SQLExec::drop(const DropStatement *statement)
 {
-    return new QueryResult("Drop not implemented"); // FIXME
+    if (statement->type != hsql::DropStatement::kTable)
+    {
+        return new QueryResult("Cannot drop a schema table!");
+    }
+
+    Identifier table_name = statement->name;
+
+    // Check the table is not a schema table
+    if (table_name == Tables::TABLE_NAME || table_name == Columns::TABLE_NAME)
+        throw SQLExecError("Cannot drop a schema table!");
+
+    // get the table
+    DbRelation &table = SQLExec::tables->get_table(table_name);
+
+    // remove table
+    table.drop();
+
+    // remove from _columns schema
+    ValueDict where;
+    where["table_name"] = Value(table_name);
+
+    DbRelation &columns = SQLExec::tables->get_table(Columns::TABLE_NAME);
+    Handles *handles = columns.select(&where);
+    for (auto const &handle : *handles)
+    {
+        columns.del(handle);
+    }
+    delete handles;
+
+    // finally, remove from table schema
+    SQLExec::tables->del(*SQLExec::tables->select(&where)->begin()); // expect only one row
+
+    return new QueryResult(std::string("dropped") + table_name);
 }
+
 
 QueryResult *SQLExec::show(const ShowStatement *statement)
 {
@@ -206,5 +239,35 @@ QueryResult *SQLExec::show_tables()
 
 QueryResult *SQLExec::show_columns(const ShowStatement *statement)
 {
-    return new QueryResult("Show columns not implemented"); // FIXME
+    // Construct the QueryResult
+    ColumnNames *column_names = new ColumnNames;
+    column_names->push_back("table_name");
+    column_names->push_back("column_name");
+    column_names->push_back("data_type");
+    ColumnAttributes *column_attributes = new ColumnAttributes;
+
+    // The middle ColumnAttribute is Class type. The third one is DataType
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    // First ValueDicts to store the data
+    ValueDicts *rows = new ValueDicts();
+
+    // Second ValueDicts to locate the table
+    ValueDict where;
+    where["table_name"] = Value(statement->tableName);
+
+    // A different method to get the column name
+    Handles *handles = SQLExec::tables->get_table(Columns::TABLE_NAME).select(&where);
+    int count = handles->size();
+
+    // Check not in schema_tables.SCHEMA_TABLES
+    for (auto const &handle : *handles)
+    {
+        ValueDict *row = SQLExec::tables->get_table(Columns::TABLE_NAME).project(handle, column_names);
+        rows->push_back(row);
+    }
+
+    delete handles;
+    return new QueryResult(column_names, column_attributes, rows, " successfully returned " + to_string(count) + " rows");
 }
+
