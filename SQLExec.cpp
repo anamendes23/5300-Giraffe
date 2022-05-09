@@ -194,7 +194,7 @@ QueryResult *SQLExec::drop(const DropStatement *statement)
     // finally, remove from table schema
     SQLExec::tables->del(*SQLExec::tables->select(&where)->begin()); // expect only one row
 
-    return new QueryResult(std::string("dropped") + table_name);
+    return new QueryResult(std::string("dropped ") + table_name);
 }
 
 

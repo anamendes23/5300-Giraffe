@@ -19,8 +19,6 @@ using namespace hsql;
  */
 void initialize_environment(const char *envHome);
 
-const char *HOME = "cpsc5300/data";
-
 /**
  * Main entry point of the sql5300 program
  * @args dbenvpath  the path to the BerkeleyDB database environment
@@ -30,12 +28,9 @@ int main(int argc, char *argv[]) {
     // Open/create the db environment
     if (argc != 2) {
         cerr << "Usage: cpsc5300: dbenvpath" << endl;
-        // return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-    // initialize_environment(argv[1]);
-    const char *dir = std::getenv("HOME");
-    std::string envdir = std::string(dir) + "/" + std::string(HOME);
-    initialize_environment(envdir.c_str());
+    initialize_environment(argv[1]);
 
     // Enter the SQL shell loop
     while (true) {
