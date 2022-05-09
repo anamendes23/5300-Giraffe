@@ -57,3 +57,5 @@ Rudimentary implementation of a Schema Storage that support the following comman
 ```
 <show_columns_statement> ::= SHOW COLUMNS FROM <table_name>
 ```
+
+##
