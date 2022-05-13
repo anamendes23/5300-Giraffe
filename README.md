@@ -58,4 +58,21 @@ Rudimentary implementation of a Schema Storage that support the following comman
 <show_columns_statement> ::= SHOW COLUMNS FROM <table_name>
 ```
 
-##
+## Milestone 4:
+
+Rudimentary implementation of SQL index commands. Supports the following commands:
+* CREATE INDEX
+#### Syntax:
+```
+CREATE INDEX index_name ON table_name [USING {BTREE | HASH}] (col1, col2, ...)
+```
+* SHOW INDEX
+#### Syntax:
+```
+SHOW INDEX FROM table_name
+```
+* DROP INDEX
+#### Syntax:
+```
+DROP INDEX index_name ON table_name
+```
