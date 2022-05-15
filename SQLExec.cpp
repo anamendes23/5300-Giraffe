@@ -10,6 +10,7 @@ using namespace hsql;
 
 // define static data
 Tables *SQLExec::tables = nullptr;
+Indices *SQLExec::indices = nullptr;
 
 // make query result be printable
 ostream &operator<<(ostream &out, const QueryResult &qres)
@@ -62,6 +63,10 @@ QueryResult *SQLExec::execute(const SQLStatement *statement)
     {
         SQLExec::tables = new Tables();
     }
+    if (SQLExec::indices == nullptr)
+    {
+        SQLExec::indices = new Indices();
+    }
 
     try
     {
@@ -102,6 +107,19 @@ void SQLExec::column_definition(const ColumnDefinition *col, Identifier &column_
 }
 
 QueryResult *SQLExec::create(const CreateStatement *statement)
+{
+    switch (statement->type)
+    {
+        case CreateStatement::CreateType::kTable:
+            return create_table(statement);
+        case CreateStatement::CreateType::kIndex:
+            return create_index(statement);
+        default:
+            return new QueryResult("not implemented");
+    }
+}
+
+QueryResult *SQLExec::create_table(const CreateStatement *statement)
 {
     // get table and columns from the sql statement
     Identifier table_name = statement->tableName;
@@ -156,7 +174,49 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
         throw;
     }
 
-    return new QueryResult("Created new table " + table_name);;
+    return new QueryResult("Created new table " + table_name);
+}
+
+QueryResult *SQLExec::create_index(const CreateStatement *statement)
+{
+    // get index information from the sql statement
+    Identifier table_name = statement->tableName;
+    Identifier index_name = statement->indexName;
+    Identifier index_type = statement->indexType;
+    std::vector<char*>* index_columns = statement->indexColumns;
+
+    // add new index to _indices
+    ValueDict row;
+    row["table_name"] = Value(table_name);
+    row["index_name"] = Value(index_name);
+    row["index_type"] = Value(index_type);
+    row["is_unique"] = index_type == "BTREE" ? Value(1) : Value(0);
+    Handles indexHandles;
+    try
+    {
+        // add columns
+        int seq = 1;
+        for(auto column : *index_columns) {
+            row["seq_in_index"] = Value(seq++);
+            row["column_name"] = Value(column);
+            indexHandles.push_back(SQLExec::indices->insert(&row));
+        }
+    }
+    catch (DbRelationError &e)
+    {
+        try
+        {
+            // undo index insertion
+            for(auto handle : indexHandles) {
+                SQLExec::indices->del(handle);
+            }
+        }
+        catch (DbRelationError &e) {}
+        // throw this exception to display error message in SQL shell
+        throw;
+    }
+
+    return new QueryResult("Created new index " + index_name);
 }
 
 // DROP ...
@@ -227,7 +287,7 @@ QueryResult *SQLExec::show_tables()
         ValueDict *row = SQLExec::tables->project(handle, column_names);
         // "_tables" and "_columns" is in the list too, filter out
         Identifier column_name = row->at("table_name").s;
-        if (column_name != Tables::TABLE_NAME && column_name != Columns::TABLE_NAME){
+        if (column_name != Tables::TABLE_NAME && column_name != Columns::TABLE_NAME && column_name != Indices::TABLE_NAME){
             rows->push_back(row);
         }
     }
