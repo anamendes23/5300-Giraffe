@@ -332,9 +332,61 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement)
 }
 
 QueryResult *SQLExec::show_index(const ShowStatement *statement) {
-     return new QueryResult("show index not implemented"); // FIXME
+    ColumnNames *column_names = new ColumnNames;
+    ColumnAttributes *column_attributes = new ColumnAttributes;
+
+    column_names->push_back("table_name");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    column_names->push_back("index_name");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    column_names->push_back("column_name");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    column_names->push_back("seq_in_index");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::INT));
+
+    column_names->push_back("index_type");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    column_names->push_back("is_unique");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::BOOLEAN));
+
+    ValueDict where;
+    where["table_name"] = Value(string(statement->tableName));
+    Handles *handles = SQLExec::indices->select(&where);
+    u_long n = handles->size();
+
+    ValueDicts *rows = new ValueDicts;
+    for (auto const &handle : *handles)
+    {
+        ValueDict *row = SQLExec::indices->project(handle, column_names);
+        rows->push_back(row);
+    }
+    delete handles;
+    return new QueryResult(column_names, column_attributes, rows,
+                           "successfully returned " + to_string(n) + " rows");
 }
 
 QueryResult *SQLExec::drop_index(const DropStatement *statement) {
-    return new QueryResult("drop index not implemented");  // FIXME
+    Identifier name = statement->name;
+    Identifier indexName = statement->indexName;
+
+    // drop index
+    DbIndex &index = SQLExec::indices->get_index(name, indexName);
+    index.drop();
+
+    // remove rows from _indices for this index
+    ValueDict where;
+    where["table_name"] = Value(name);
+    where["index_name"] = Value(indexName);
+    Handles *handles = SQLExec::indices->select(&where);
+    
+    for (auto const &handle : *handles)
+        SQLExec::indices->del(handle);
+    delete handles;
+
+    return new QueryResult("dropped index " + indexName + " From " + name);
+    
 }
