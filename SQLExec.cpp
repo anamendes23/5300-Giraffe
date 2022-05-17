@@ -1,6 +1,7 @@
 /**
  * @file SQLExec.cpp - implementation of SQLExec class
- * @author Kevin Lundeen
+ * @author Ana Mendes
+ * @author Keerthana Thonupunuri
  * @see "Seattle University, CPSC5300, Spring 2022"
  */
 #include "SQLExec.h"
@@ -388,12 +389,14 @@ QueryResult *SQLExec::drop_table(const DropStatement *statement)
     {
         columns.del(handle);
     }
+
+    // finally, remove from table schema
+    Handles *tableHandles = SQLExec::tables->select(&where);
+    SQLExec::tables->del(*tableHandles->begin()); // expect only one row
     
     delete indexHandles;
     delete handles;
-
-    // finally, remove from table schema
-    SQLExec::tables->del(*SQLExec::tables->select(&where)->begin()); // expect only one row
+    delete tableHandles;
 
     return new QueryResult(std::string("dropped ") + table_name);
 }
@@ -432,12 +435,16 @@ QueryResult *parser_helper(string query) {
         for (uint i = 0; i < parse->size(); ++i) {
             const SQLStatement *statement = parse->getStatement(i);
             try {
+                // delete parse;
                 return SQLExec::execute(statement);
+                // delete statement;
+                // return result;
         } catch (SQLExecError &e) {
                 cout << "Error: " << e.what() << endl;
             }
         }
     }
+    // delete parse;
     return nullptr;
 }
 
