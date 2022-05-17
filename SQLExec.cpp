@@ -405,5 +405,5 @@ QueryResult *SQLExec::drop_index(const DropStatement *statement) {
         SQLExec::indices->del(handle);
     delete handles;
 
-    return new QueryResult("dropped index " + indexName + " From " + name); 
+    return new QueryResult("dropped index " + indexName + " from " + name); 
 }
