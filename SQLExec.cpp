@@ -438,16 +438,16 @@ QueryResult *parser_helper(string query) {
         for (uint i = 0; i < parse->size(); ++i) {
             const SQLStatement *statement = parse->getStatement(i);
             try {
-                // delete parse;
-                return SQLExec::execute(statement);
-                // delete statement;
-                // return result;
+                QueryResult *result = SQLExec::execute(statement);
+                delete parse;
+                return result;
         } catch (SQLExecError &e) {
+                delete parse;
                 cout << "Error: " << e.what() << endl;
             }
         }
     }
-    // delete parse;
+    delete parse;
     return nullptr;
 }
 
@@ -467,6 +467,7 @@ bool test_table_functionality() {
         delete qr_show_no_tables;
         return false;
     }
+    delete qr_show_no_tables;
     cout << endl << "show tables with no tables ok" << endl;
     // verify create table works, show tables will return 1 row
     QueryResult *qr_create_table = parser_helper(create_table);
@@ -475,42 +476,32 @@ bool test_table_functionality() {
     if (show_tables_rows->size() != 1) {
         delete qr_create_table;
         delete qr_show_tables;
-        delete qr_show_no_tables;
         return false;
     }
+    delete qr_create_table;
+    delete qr_show_tables;
     cout << "create table ok" << endl;
     // verify show columns works, returns 5 rows for foo
     QueryResult *qr_show_columns = parser_helper(show_columns);
     ValueDicts *show_columns_rows = qr_show_columns->get_rows();
     if (show_columns_rows->size() != 5) {
-        delete qr_create_table;
-        delete qr_show_tables;
-        delete qr_show_no_tables;
         delete qr_show_columns;
         return false;
     }
+    delete qr_show_columns;
     cout << "show columns ok" << endl;
     // verify drop table works, show tables will return 0 rows
     QueryResult *qr_drop_table = parser_helper(drop_tables);
     QueryResult *qr_show_tables_drop = parser_helper(show_tables);
     ValueDicts *show_tables_drop_rows = qr_show_tables_drop->get_rows();
     if (show_tables_drop_rows->size() != 0) {
-        delete qr_create_table;
-        delete qr_show_tables;
-        delete qr_show_no_tables;
-        delete qr_show_columns;
         delete qr_drop_table;
         delete qr_show_tables_drop;
         return false;
     }
-    cout << "drop table ok" << endl;
-
-    delete qr_show_no_tables;
-    delete qr_show_tables;
-    delete qr_create_table;
-    delete qr_show_columns;
     delete qr_drop_table;
     delete qr_show_tables_drop;
+    cout << "drop table ok" << endl;
 
     return true;
 }
@@ -531,46 +522,39 @@ bool test_index_functionality() {
     QueryResult *qr_show_no_indice = parser_helper(show_index);
     ValueDicts *show_no_indice_rows = qr_show_no_indice->get_rows();
     if (show_no_indice_rows->size() != 0) {
-        delete qr_show_no_indice;
+         delete qr_show_no_indice;
         delete qr_create_table;
         return false;
     }
+    delete qr_show_no_indice;
+    delete qr_create_table;
     cout << "show index with no index ok" << endl;
     // verify create indix works, show index will return 1 row
     QueryResult *qr_create_index = parser_helper(create_index);
     QueryResult *qr_show_index = parser_helper(show_index);
     ValueDicts *show_index_rows = qr_show_index->get_rows();
     if (show_index_rows->size() != 2) {
-        delete qr_show_no_indice;
-        delete qr_create_table;
         delete qr_create_index;
         delete qr_show_index;
         return false;
     }
+    delete qr_create_index;
+    delete qr_show_index;
     cout << "create index ok" << endl;
     // verify drop index works, show index will return 0 rows
     QueryResult *qr_drop_index = parser_helper(drop_index);
     QueryResult *qr_show_index_drop = parser_helper(show_index);
     ValueDicts *show_index_drop_rows = qr_show_index_drop->get_rows();
     if (show_index_drop_rows->size() != 0) {
-        delete qr_show_no_indice;
-        delete qr_create_table;
-        delete qr_create_index;
-        delete qr_show_index;
         delete qr_drop_index;
         delete qr_show_index_drop;
         return false;
     }
+    delete qr_drop_index;
+    delete qr_show_index_drop;
     cout << "drop table ok" << endl;
     // delete table for testing
     QueryResult *qr_drop_table = parser_helper(drop_tables);
-
-    delete qr_show_no_indice;
-    delete qr_create_table;
-    delete qr_create_index;
-    delete qr_show_index;
-    delete qr_drop_index;
-    delete qr_show_index_drop;
     delete qr_drop_table;
 
     return true;
