@@ -188,7 +188,6 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
     Identifier table_name = statement->tableName;
     Identifier index_name = statement->indexName;
     Identifier index_type = statement->indexType;
-    std::vector<char*>* index_columns = statement->indexColumns;
 
     // add new index to _indices
     ValueDict row;
@@ -201,7 +200,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
     {
         // add columns
         int seq = 1;
-        for(auto const &column : *index_columns) {
+        for(auto const &column : *statement->indexColumns) {
             row["seq_in_index"] = Value(seq++);
             row["column_name"] = Value(column);
             indexHandles.push_back(SQLExec::indices->insert(&row));
@@ -216,7 +215,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
         try
         {
             // undo index insertion
-            for(auto handle : indexHandles) {
+            for(auto const &handle : indexHandles) {
                 SQLExec::indices->del(handle);
             }
         }
@@ -224,7 +223,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
         // throw this exception to display error message in SQL shell
         throw;
     }
-    delete index_columns;
+
     return new QueryResult("Created new index " + index_name);
 }
 
@@ -260,6 +259,9 @@ QueryResult *SQLExec::show_tables()
         if (column_name != Tables::TABLE_NAME && column_name != Columns::TABLE_NAME && column_name != Indices::TABLE_NAME){
             rows->push_back(row);
         }
+        else {
+            delete row;
+        }
     }
     delete selectResult;
     // message should contain the number of records returned.
@@ -293,7 +295,8 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement)
     // Check not in schema_tables.SCHEMA_TABLES
     for (auto const &handle : *handles)
     {
-        ValueDict *row = SQLExec::tables->get_table(Columns::TABLE_NAME).project(handle, column_names);
+        DbRelation &table = SQLExec::tables->get_table(Columns::TABLE_NAME);
+        ValueDict *row = table.project(handle, column_names);
         rows->push_back(row);
     }
 
