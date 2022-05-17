@@ -37,6 +37,9 @@ ostream &operator<<(ostream &out, const QueryResult &qres)
                 case ColumnAttribute::TEXT:
                     out << "\"" << value.s << "\"";
                     break;
+                case ColumnAttribute::BOOLEAN:
+                    out << (value.n == 1 ? "true" : "false");
+                    break;
                 default:
                     out << "???";
                 }
@@ -110,9 +113,9 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
 {
     switch (statement->type)
     {
-        case CreateStatement::CreateType::kTable:
+        case CreateStatement::kTable:
             return create_table(statement);
-        case CreateStatement::CreateType::kIndex:
+        case CreateStatement::kIndex:
             return create_index(statement);
         default:
             return new QueryResult("not implemented");
@@ -190,7 +193,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
     row["table_name"] = Value(table_name);
     row["index_name"] = Value(index_name);
     row["index_type"] = Value(index_type);
-    row["is_unique"] = index_type == "BTREE" ? Value(1) : Value(0);
+    row["is_unique"] = Value(index_type == "BTREE");
     Handles indexHandles;
     try
     {
@@ -202,7 +205,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
             indexHandles.push_back(SQLExec::indices->insert(&row));
         }
 
-        //create index
+        // now that columns were successfully added, get index and create it
         DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
         index.create();
     }
@@ -219,7 +222,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
         // throw this exception to display error message in SQL shell
         throw;
     }
-
+    delete index_columns;
     return new QueryResult("Created new index " + index_name);
 }
 
@@ -338,9 +341,9 @@ QueryResult *SQLExec::show_index(const ShowStatement *statement) {
 QueryResult *SQLExec::drop(const hsql::DropStatement *statement) {
     switch (statement->type)
     {
-        case DropStatement::EntityType::kTable:
+        case DropStatement::kTable:
             return drop_table(statement);
-        case DropStatement::EntityType::kIndex:
+        case DropStatement::kIndex:
             return drop_index(statement);
         default:
             return new QueryResult("not implemented");
