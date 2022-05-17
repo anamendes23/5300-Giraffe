@@ -101,3 +101,10 @@ protected:
     column_definition(const hsql::ColumnDefinition *col, Identifier &column_name, ColumnAttribute &column_attribute);
 };
 
+QueryResult *parser_helper();
+
+bool test_table_functionality();
+
+bool test_index_functionality();
+
+bool test_sql_exec();

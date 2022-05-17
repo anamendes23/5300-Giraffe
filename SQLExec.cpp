@@ -4,6 +4,7 @@
  * @see "Seattle University, CPSC5300, Spring 2022"
  */
 #include "SQLExec.h"
+#include "ParseTreeToString.h"
 
 using namespace std;
 using namespace hsql;
@@ -416,4 +417,167 @@ QueryResult *SQLExec::drop_index(const DropStatement *statement) {
     delete handles;
 
     return new QueryResult("dropped index " + indexName + " from " + name); 
+}
+
+/**
+ * Helper function to parse queries to run tests.
+ * @return result of query after being executed by SQLExec
+ */
+QueryResult *parser_helper(string query) {
+    SQLParserResult *parse = SQLParser::parseSQLString(query);
+    if (!parse->isValid()) {
+        cout << "invalid SQL: " << query << endl;
+        cout << parse->errorMsg() << endl;
+    } else {
+        for (uint i = 0; i < parse->size(); ++i) {
+            const SQLStatement *statement = parse->getStatement(i);
+            try {
+                return SQLExec::execute(statement);
+        } catch (SQLExecError &e) {
+                cout << "Error: " << e.what() << endl;
+            }
+        }
+    }
+    return nullptr;
+}
+
+/**
+ * Testing function for table and column functionality.
+ * @return true if the tests all succeeded
+ */
+bool test_table_functionality() {
+    string show_tables = "show tables";
+    string create_table = "create table foo (id int, data text, x integer, y integer, z integer)";
+    string show_columns = "show columns from foo";
+    string drop_tables = "drop table foo";
+    // verify show tables when no tables return 0 rows
+    QueryResult *qr_show_no_tables = parser_helper(show_tables);
+    ValueDicts *show_no_tables_rows = qr_show_no_tables->get_rows();
+    if (show_no_tables_rows->size() != 0) {
+        delete qr_show_no_tables;
+        return false;
+    }
+    cout << endl << "show tables with no tables ok" << endl;
+    // verify create table works, show tables will return 1 row
+    QueryResult *qr_create_table = parser_helper(create_table);
+    QueryResult *qr_show_tables = parser_helper(show_tables);
+    ValueDicts *show_tables_rows = qr_show_tables->get_rows();
+    if (show_tables_rows->size() != 1) {
+        delete qr_create_table;
+        delete qr_show_tables;
+        delete qr_show_no_tables;
+        return false;
+    }
+    cout << "create table ok" << endl;
+    // verify show columns works, returns 5 rows for foo
+    QueryResult *qr_show_columns = parser_helper(show_columns);
+    ValueDicts *show_columns_rows = qr_show_columns->get_rows();
+    if (show_columns_rows->size() != 5) {
+        delete qr_create_table;
+        delete qr_show_tables;
+        delete qr_show_no_tables;
+        delete qr_show_columns;
+        return false;
+    }
+    cout << "show columns ok" << endl;
+    // verify drop table works, show tables will return 0 rows
+    QueryResult *qr_drop_table = parser_helper(drop_tables);
+    QueryResult *qr_show_tables_drop = parser_helper(show_tables);
+    ValueDicts *show_tables_drop_rows = qr_show_tables_drop->get_rows();
+    if (show_tables_drop_rows->size() != 0) {
+        delete qr_create_table;
+        delete qr_show_tables;
+        delete qr_show_no_tables;
+        delete qr_show_columns;
+        delete qr_drop_table;
+        delete qr_show_tables_drop;
+        return false;
+    }
+    cout << "drop table ok" << endl;
+
+    delete qr_show_no_tables;
+    delete qr_show_tables;
+    delete qr_create_table;
+    delete qr_show_columns;
+    delete qr_drop_table;
+    delete qr_show_tables_drop;
+
+    return true;
+}
+
+/**
+ * Testing function for index functionality.
+ * @return true if the tests all succeeded
+ */
+bool test_index_functionality() {
+    string create_table = "create table test (x int, y int, z int)";
+    string show_index = "show index from test";
+    string create_index = "create index fx on test (x,y)";
+    string drop_index = "drop index fx from test";
+    string drop_tables = "drop table test";
+    // create table for testing
+    QueryResult *qr_create_table = parser_helper(create_table);
+    // verify show indices when no indices return 0 rows
+    QueryResult *qr_show_no_indice = parser_helper(show_index);
+    ValueDicts *show_no_indice_rows = qr_show_no_indice->get_rows();
+    if (show_no_indice_rows->size() != 0) {
+        delete qr_show_no_indice;
+        delete qr_create_table;
+        return false;
+    }
+    cout << "show index with no index ok" << endl;
+    // verify create indix works, show index will return 1 row
+    QueryResult *qr_create_index = parser_helper(create_index);
+    QueryResult *qr_show_index = parser_helper(show_index);
+    ValueDicts *show_index_rows = qr_show_index->get_rows();
+    if (show_index_rows->size() != 2) {
+        delete qr_show_no_indice;
+        delete qr_create_table;
+        delete qr_create_index;
+        delete qr_show_index;
+        return false;
+    }
+    cout << "create index ok" << endl;
+    // verify drop index works, show index will return 0 rows
+    QueryResult *qr_drop_index = parser_helper(drop_index);
+    QueryResult *qr_show_index_drop = parser_helper(show_index);
+    ValueDicts *show_index_drop_rows = qr_show_index_drop->get_rows();
+    if (show_index_drop_rows->size() != 0) {
+        delete qr_show_no_indice;
+        delete qr_create_table;
+        delete qr_create_index;
+        delete qr_show_index;
+        delete qr_drop_index;
+        delete qr_show_index_drop;
+        return false;
+    }
+    cout << "drop table ok" << endl;
+    // delete table for testing
+    QueryResult *qr_drop_table = parser_helper(drop_tables);
+
+    delete qr_show_no_indice;
+    delete qr_create_table;
+    delete qr_create_index;
+    delete qr_show_index;
+    delete qr_drop_index;
+    delete qr_show_index_drop;
+    delete qr_drop_table;
+
+    return true;
+}
+
+/**
+ * Testing function for SQL Exec.
+ * @return true if the tests all succeeded
+ */
+bool test_sql_exec() {
+    if (!test_table_functionality())
+        return assertion_failure("_tables and _columns tests failed");
+    cout << "_tables and _columns tests ok" << endl;
+
+    if (!test_index_functionality())
+        return assertion_failure("_indices tests failed");
+    cout << "_indices tests ok" << endl;
+
+    return true;
 }
