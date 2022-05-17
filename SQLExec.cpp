@@ -363,6 +363,14 @@ QueryResult *SQLExec::drop_table(const DropStatement *statement)
     if (table_name == Tables::TABLE_NAME || table_name == Columns::TABLE_NAME)
         throw SQLExecError("Cannot drop a schema table!");
 
+    // before dropping table, drop all indices of that table
+    ValueDict index_where;
+    index_where["table_name"] = Value(table_name);
+    Handles *indexHandles = SQLExec::indices->select(&index_where);
+    for(auto const &handle : *indexHandles) {
+        SQLExec::indices->del(handle);
+    }
+
     // get the table
     DbRelation &table = SQLExec::tables->get_table(table_name);
 
@@ -379,6 +387,8 @@ QueryResult *SQLExec::drop_table(const DropStatement *statement)
     {
         columns.del(handle);
     }
+    
+    delete indexHandles;
     delete handles;
 
     // finally, remove from table schema
