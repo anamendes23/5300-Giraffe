@@ -76,17 +76,20 @@ protected:
 
     static QueryResult *create_index(const hsql::CreateStatement *statement);
 
-    static QueryResult *drop(const hsql::DropStatement *statement);
-
     static QueryResult *show(const hsql::ShowStatement *statement);
 
     static QueryResult *show_tables();
 
     static QueryResult *show_columns(const hsql::ShowStatement *statement);
 
+    static QueryResult *show_index(const hsql::ShowStatement *statement);
+
+    static QueryResult *drop(const hsql::DropStatement *statement);
+
+    static QueryResult *drop_table(const hsql::DropStatement *statement);
+
     static QueryResult *drop_index(const hsql::DropStatement *statement);
 
-    static QueryResult *show_index(const hsql::ShowStatement *statement);
 
     /**
      * Pull out column name and attributes from AST's column definition clause

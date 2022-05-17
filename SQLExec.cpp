@@ -219,54 +219,13 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
     return new QueryResult("Created new index " + index_name);
 }
 
-// DROP ...
-QueryResult *SQLExec::drop(const DropStatement *statement)
-{
-    if (statement->type != hsql::DropStatement::kTable)
-    {
-        return new QueryResult("Cannot drop a schema table!");
-    }
-
-    Identifier table_name = statement->name;
-
-    // Check the table is not a schema table
-    if (table_name == Tables::TABLE_NAME || table_name == Columns::TABLE_NAME)
-        throw SQLExecError("Cannot drop a schema table!");
-
-    // get the table
-    DbRelation &table = SQLExec::tables->get_table(table_name);
-
-    // remove table
-    table.drop();
-
-    // remove from _columns schema
-    ValueDict where;
-    where["table_name"] = Value(table_name);
-
-    DbRelation &columns = SQLExec::tables->get_table(Columns::TABLE_NAME);
-    Handles *handles = columns.select(&where);
-    for (auto const &handle : *handles)
-    {
-        columns.del(handle);
-    }
-    delete handles;
-
-    // finally, remove from table schema
-    SQLExec::tables->del(*SQLExec::tables->select(&where)->begin()); // expect only one row
-
-    return new QueryResult(std::string("dropped ") + table_name);
-}
-
-
 QueryResult *SQLExec::show(const ShowStatement *statement)
 {
     switch(statement->type) {
         case ShowStatement::kTables:
             return show_tables();
-            break;
         case ShowStatement::kColumns:
             return show_columns(statement);
-            break;
         default:
             throw new SQLExecError("statement not implemented " + statement->type);
     }
@@ -369,6 +328,56 @@ QueryResult *SQLExec::show_index(const ShowStatement *statement) {
                            "successfully returned " + to_string(n) + " rows");
 }
 
+// DROP ...
+QueryResult *SQLExec::drop(const hsql::DropStatement *statement) {
+    switch (statement->type)
+    {
+        case DropStatement::EntityType::kTable:
+            return drop_table(statement);
+        case DropStatement::EntityType::kIndex:
+            return drop_index(statement);
+        default:
+            return new QueryResult("not implemented");
+    }
+}
+
+QueryResult *SQLExec::drop_table(const DropStatement *statement)
+{
+    if (statement->type != hsql::DropStatement::kTable)
+    {
+        return new QueryResult("Cannot drop a schema table!");
+    }
+
+    Identifier table_name = statement->name;
+
+    // Check the table is not a schema table
+    if (table_name == Tables::TABLE_NAME || table_name == Columns::TABLE_NAME)
+        throw SQLExecError("Cannot drop a schema table!");
+
+    // get the table
+    DbRelation &table = SQLExec::tables->get_table(table_name);
+
+    // remove table
+    table.drop();
+
+    // remove from _columns schema
+    ValueDict where;
+    where["table_name"] = Value(table_name);
+
+    DbRelation &columns = SQLExec::tables->get_table(Columns::TABLE_NAME);
+    Handles *handles = columns.select(&where);
+    for (auto const &handle : *handles)
+    {
+        columns.del(handle);
+    }
+    delete handles;
+
+    // finally, remove from table schema
+    SQLExec::tables->del(*SQLExec::tables->select(&where)->begin()); // expect only one row
+
+    return new QueryResult(std::string("dropped ") + table_name);
+}
+
 QueryResult *SQLExec::drop_index(const DropStatement *statement) {
     Identifier name = statement->name;
     Identifier indexName = statement->indexName;
@@ -387,6 +396,5 @@ QueryResult *SQLExec::drop_index(const DropStatement *statement) {
         SQLExec::indices->del(handle);
     delete handles;
 
-    return new QueryResult("dropped index " + indexName + " From " + name);
-    
+    return new QueryResult("dropped index " + indexName + " From " + name); 
 }
