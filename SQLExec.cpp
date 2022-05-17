@@ -196,11 +196,15 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
     {
         // add columns
         int seq = 1;
-        for(auto column : *index_columns) {
+        for(auto const &column : *index_columns) {
             row["seq_in_index"] = Value(seq++);
             row["column_name"] = Value(column);
             indexHandles.push_back(SQLExec::indices->insert(&row));
         }
+
+        //create index
+        DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
+        index.create();
     }
     catch (DbRelationError &e)
     {
@@ -226,6 +230,8 @@ QueryResult *SQLExec::show(const ShowStatement *statement)
             return show_tables();
         case ShowStatement::kColumns:
             return show_columns(statement);
+        case ShowStatement::kIndex:
+            return show_index(statement);
         default:
             throw new SQLExecError("statement not implemented " + statement->type);
     }
