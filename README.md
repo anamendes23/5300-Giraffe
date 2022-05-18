@@ -11,10 +11,10 @@ Team:
 Program written in C++ that runs from the command line and prompts the user for SQL statements and then executes them one at a time, just like the mysql program.
 
 To build the program:
-$ make
+`$ make`
 
 To run the program:
-$ ./sql5300 ~/cpsc5300/data
+`$ ./sql5300 ~/cpsc5300/data`
 
 ## Milestone 2:
 
@@ -38,24 +38,22 @@ Rudimentary implementation of a Schema Storage that support the following comman
 * CREATE TABLE
 #### Syntax:
 ```
-<table_definition> ::= CREATE TABLE <table_name> (<column_definitions> )
-<column_definitions> ::= <column_definition> | <column_definition>, <column_definitions>
-<column_definition> ::= <column_name> <datatype>
+CREATE TABLE <table_name> (<column_definitions>)
 ```
 * DROP TABLE
 #### Syntax:
 ```
-<drop_table_statement> ::= DROP TABLE <table_name>
+DROP TABLE <table_name>
 ```
 * SHOW TABLES
 #### Syntax:
 ```
-<show_tables_statement> ::= SHOW TABLES
+SHOW TABLES
 ```
 * SHOW COLUMNS
 #### Syntax:
 ```
-<show_columns_statement> ::= SHOW COLUMNS FROM <table_name>
+SHOW COLUMNS FROM <table_name>
 ```
 
 ## Milestone 4:
@@ -74,5 +72,23 @@ SHOW INDEX FROM table_name
 * DROP INDEX
 #### Syntax:
 ```
-DROP INDEX index_name ON table_name
+DROP INDEX index_name FROM table_name
 ```
+### Usage:
+Clean the builds:
+<br />`$ make clean`
+<br />Build project:
+<br />`$ make`
+<br />After compiling, run the following command to start the SQL shell:
+<br />`$ ./sql5300 [PATH]/data`
+<br />To test the storage engine, use the `test` command:
+<br />`$ SQL> test`
+<br />To exit the SQL shell, use the `quit` command:
+<br />`$ SQL> quit`
+
+### Hand-Off
+
+To assist the next team working on project Giraffe, we recorded a walk-through video to show the parts of our code.
+You can find watch the [video here](https://seattleu.instructuremedia.com/embed/65dba5e4-cdb8-418c-849f-1829a28759f7).
+
+This is an addendum video to talk about the memory leaks, you may find the [video here](https://seattleu.instructuremedia.com/embed/b18be271-0505-4459-aa9f-f805d33344e2).

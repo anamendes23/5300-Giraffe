@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
             break;  // only way to get out
         if (query == "test") {
             cout << "test_heap_storage: " << (test_heap_storage() ? "ok" : "failed") << endl;
+            cout << "test_sql_exec: " << (test_sql_exec() ? "ok" : "failed") << endl;
             continue;
         }
 

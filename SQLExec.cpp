@@ -552,7 +552,7 @@ bool test_index_functionality() {
     }
     delete qr_drop_index;
     delete qr_show_index_drop;
-    cout << "drop table ok" << endl;
+    cout << "drop index ok" << endl;
     // delete table for testing
     QueryResult *qr_drop_table = parser_helper(drop_tables);
     delete qr_drop_table;
