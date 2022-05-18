@@ -92,3 +92,5 @@ To assist the next team working on project Giraffe, we recorded a walk-through v
 You can find watch the [video here](https://seattleu.instructuremedia.com/embed/65dba5e4-cdb8-418c-849f-1829a28759f7).
 
 This is an addendum video to talk about the memory leaks, you may find the [video here](https://seattleu.instructuremedia.com/embed/b18be271-0505-4459-aa9f-f805d33344e2).
+
+---
