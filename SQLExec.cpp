@@ -124,6 +124,13 @@ QueryResult *SQLExec::create(const CreateStatement *statement)
     }
 }
 
+
+/**
+ * Function to create the table
+ * @return the list of tables created with table name after being executed by SQLExec
+ * 
+ */
+
 QueryResult *SQLExec::create_table(const CreateStatement *statement)
 {
     // get table and columns from the sql statement
@@ -181,6 +188,14 @@ QueryResult *SQLExec::create_table(const CreateStatement *statement)
 
     return new QueryResult("Created new table " + table_name);
 }
+
+
+/**
+ * Function to create index for the tables available
+ * @return the created index with index name and type after being executed by SQLExec
+ * 
+ */
+
 
 QueryResult *SQLExec::create_index(const CreateStatement *statement)
 {
@@ -241,6 +256,13 @@ QueryResult *SQLExec::show(const ShowStatement *statement)
     }
 }
 
+
+/**
+ * Function to show all the tables available
+ * @return the list of tables with table name after being executed by SQLExec
+ * 
+ */
+
 QueryResult *SQLExec::show_tables()
 {
     ColumnNames *column_names = new ColumnNames;
@@ -268,6 +290,12 @@ QueryResult *SQLExec::show_tables()
     string message = "successfully returned " + to_string(rows->size()) + " rows";
     return new QueryResult(column_names, column_attributes, rows, message);
 }
+
+/**
+ * Function to show all the columns available
+ * @return the list of columns with column name after being executed by SQLExec
+ * 
+ */
 
 QueryResult *SQLExec::show_columns(const ShowStatement *statement)
 {
@@ -303,6 +331,13 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement)
     delete handles;
     return new QueryResult(column_names, column_attributes, rows, " successfully returned " + to_string(count) + " rows");
 }
+
+
+/**
+ * Function to show all the index available
+ * @return the index for the table name after being executed by SQLExec
+ * 
+ */
 
 QueryResult *SQLExec::show_index(const ShowStatement *statement) {
     ColumnNames *column_names = new ColumnNames;
@@ -355,6 +390,12 @@ QueryResult *SQLExec::drop(const hsql::DropStatement *statement) {
     }
 }
 
+
+/**
+ * Function to drop all the tables available
+ * @return the statement dropped table after being executed by SQLExec
+ * 
+ */
 QueryResult *SQLExec::drop_table(const DropStatement *statement)
 {
     if (statement->type != hsql::DropStatement::kTable)
