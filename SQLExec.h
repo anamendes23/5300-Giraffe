@@ -90,6 +90,12 @@ protected:
 
     static QueryResult *drop_index(const hsql::DropStatement *statement);
 
+    static QueryResult *insert(const hsql::InsertStatement *statement);
+
+    static QueryResult *del(const hsql::DeleteStatement *statement);
+
+    static QueryResult *select(const hsql::SelectStatement *statement);
+
 
     /**
      * Pull out column name and attributes from AST's column definition clause

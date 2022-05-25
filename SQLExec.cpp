@@ -222,12 +222,20 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
     Identifier index_name = statement->indexName;
     Identifier index_type = statement->indexType;
 
+    // get underlying relation
+    DbRelation &table = SQLExec::tables->get_table(table_name);
+    // check that given columns exist in table
+    const ColumnNames &table_columns = table.get_column_names();
+    for (auto const &col_name: *statement->indexColumns)
+        if (find(table_columns.begin(), table_columns.end(), col_name) == table_columns.end())
+            throw SQLExecError(string("Column '") + col_name + "' does not exist in " + table_name);
+
     // add new index to _indices
     ValueDict row;
     row["table_name"] = Value(table_name);
     row["index_name"] = Value(index_name);
     row["index_type"] = Value(index_type);
-    row["is_unique"] = Value(index_type == "BTREE");
+    row["is_unique"] = Value(string(statement->indexType) == "BTREE"); // assume HASH is non-unique --
     Handles indexHandles;
     try
     {
@@ -263,7 +271,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement)
 QueryResult *SQLExec::show(const ShowStatement *statement)
 {
     switch(statement->type) {
-        case ShowStatement::kTables:
+        case ShowStatement::kTables: 
             return show_tables();
         case ShowStatement::kColumns:
             return show_columns(statement);
