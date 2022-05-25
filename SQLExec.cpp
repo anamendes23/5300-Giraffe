@@ -83,6 +83,12 @@ QueryResult *SQLExec::execute(const SQLStatement *statement)
             return drop((const DropStatement *)statement);
         case kStmtShow:
             return show((const ShowStatement *)statement);
+        case kStmtInsert:
+            return insert((const InsertStatement *) statement);
+        case kStmtDelete:
+            return del((const DeleteStatement *) statement);
+        case kStmtSelect:
+            return select((const SelectStatement *) statement);
         default:
             return new QueryResult("not implemented");
         }
@@ -91,6 +97,18 @@ QueryResult *SQLExec::execute(const SQLStatement *statement)
     {
         throw SQLExecError(string("DbRelationError: ") + e.what());
     }
+}
+
+QueryResult *SQLExec::insert(const InsertStatement *statement) {
+    return new QueryResult("INSERT statement not yet implemented");  // FIXME
+}
+
+QueryResult *SQLExec::del(const DeleteStatement *statement) {
+    return new QueryResult("DELETE statement not yet implemented");  // FIXME
+}
+
+QueryResult *SQLExec::select(const SelectStatement *statement) {
+    return new QueryResult("SELECT statement not yet implemented");  // FIXME
 }
 
 void SQLExec::column_definition(const ColumnDefinition *col, Identifier &column_name, ColumnAttribute &column_attribute)
