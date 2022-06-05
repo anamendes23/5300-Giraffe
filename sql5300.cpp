@@ -1,7 +1,7 @@
 /**
  * @file sql5300.cpp - main entry for the relation manager's SQL shell
  * @author Kevin Lundeen
- * @see "Seattle University, CPSC5300, Spring 2022"
+ * @see "Seattle University, cpsc4300/5300, Spring 2022"
  */
 #include <cstdlib>
 #include <iostream>
@@ -10,6 +10,7 @@
 #include "SQLParser.h"
 #include "ParseTreeToString.h"
 #include "SQLExec.h"
+#include "btree.h"
 
 using namespace std;
 using namespace hsql;
@@ -17,7 +18,8 @@ using namespace hsql;
 /*
  * we allocate and initialize the _DB_ENV global
  */
-void initialize_environment(const char *envHome);
+void initialize_environment(char *envHome);
+
 
 /**
  * Main entry point of the sql5300 program
@@ -43,7 +45,7 @@ int main(int argc, char *argv[]) {
             break;  // only way to get out
         if (query == "test") {
             cout << "test_heap_storage: " << (test_heap_storage() ? "ok" : "failed") << endl;
-            cout << "test_sql_exec: " << (test_sql_exec() ? "ok" : "failed") << endl;
+            cout << "test_btree: " << (test_btree() ? "ok" : "failed") << endl;
             continue;
         }
 
@@ -72,7 +74,7 @@ int main(int argc, char *argv[]) {
 
 DbEnv *_DB_ENV;
 
-void initialize_environment(const char *envHome) {
+void initialize_environment(char *envHome) {
     cout << "(sql5300: running with database environment at " << envHome << ")" << endl;
 
     DbEnv *env = new DbEnv(0U);

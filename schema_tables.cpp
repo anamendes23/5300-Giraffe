@@ -5,6 +5,7 @@
  */
 #include "schema_tables.h"
 #include "ParseTreeToString.h"
+#include "btree.h"
 
 
 void initialize_schema_tables() {
@@ -329,6 +330,7 @@ void Indices::del(Handle handle) {
     ValueDict *row = project(handle);
     Identifier table_name = row->at("table_name").s;
     Identifier index_name = row->at("index_name").s;
+    delete row;
     std::pair<Identifier, Identifier> cache_key(table_name, index_name);
     if (Indices::index_cache.find(cache_key) != Indices::index_cache.end()) {
         DbIndex *index = Indices::index_cache.at(cache_key);
@@ -403,7 +405,7 @@ DbIndex &Indices::get_index(Identifier table_name, Identifier index_name) {
     if (is_hash) {
         index = new DummyIndex(table, index_name, column_names, is_unique);  // FIXME - change to HashIndex
     } else {
-        index = new DummyIndex(table, index_name, column_names, is_unique);  // FIXME - change to BTreeIndex
+        index = new BTreeIndex(table, index_name, column_names, is_unique);
     }
     Indices::index_cache[cache_key] = index;
     return *index;
@@ -423,4 +425,3 @@ IndexNames Indices::get_index_names(Identifier table_name) {
     delete handles;
     return ret;
 }
-

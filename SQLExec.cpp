@@ -107,8 +107,44 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
     return new QueryResult("DELETE statement not yet implemented");  // FIXME
 }
 
-QueryResult *SQLExec::select(const SelectStatement *statement) {
-    return new QueryResult("SELECT statement not yet implemented");  // FIXME
+QueryResult *SQLExec::select(const SelectStatement *statement)
+{
+    Identifier table_name = statement->fromTable->name;
+    DbRelation& table = SQLExec::tables->get_table(table_name);
+
+    ColumnNames* col_names = new ColumnNames;
+    for(auto const& expr : *statement->selectList)
+    {
+        if(expr->type == kExprStar)
+        {
+            for(auto const col : table.get_column_names())
+            {
+                col_names->push_back(col);
+            }
+            break;
+        }
+        else if(expr->type == kExprColumnRef)
+            col_names->push_back(expr->name);
+        else
+            return new QueryResult("Invalid expr");
+    }
+
+    EvalPlan* plan = new EvalPlan(table);
+    ValueDict* where = new ValueDict;
+
+    if (statement->whereClause != NULL)
+    {
+        where = get_where_conjunction(statement->whereClause, &table.get_column_names());
+        plan = new EvalPlan(where, plan);
+    }
+
+    plan = new EvalPlan(col_names, plan);
+    EvalPlan* optimize = plan->optimize();
+    ValueDicts* rows = optimized->evaluate();
+    delete where;
+
+    ColumnAttributes* col_attr = table.get_column_attributes(*col_names);
+    return new QueryResult(col_names, col_attr, rows, "successfully returned" + to_string(rows->size()) + " rows");
 }
 
 void SQLExec::column_definition(const ColumnDefinition *col, Identifier &column_name, ColumnAttribute &column_attribute)
