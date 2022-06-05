@@ -98,13 +98,110 @@ QueryResult *SQLExec::execute(const SQLStatement *statement)
         throw SQLExecError(string("DbRelationError: ") + e.what());
     }
 }
+ColumnAttribute get_column_type(string column, ColumnNames columns, ColumnAttributes column_types) {
+    for(uint i = 0; i < columns.size(); i++) {
+        if(columns[i] == column) {
+            return column_types[i];
+        }
+    }
+    throw SQLExecError("unkown column " + column);
+}
 
 QueryResult *SQLExec::insert(const InsertStatement *statement) {
-    return new QueryResult("INSERT statement not yet implemented");  // FIXME
+    Identifier table_name = statement->tableName;
+    DbRelation &table = SQLExec::tables->get_table(table_name);
+    ColumnNames insert_columns;
+    if (statement->columns != nullptr) {
+        for(const auto &column : *statement->columns) {
+            insert_columns.push_back(column);
+        }
+    } else {
+        insert_columns = table.get_column_names();
+    }
+    std::vector<Expr*> insert_values = *statement->values;
+
+    ValueDict row;
+    ColumnNames columns = table.get_column_names();
+    ColumnAttributes column_types = table.get_column_attributes();
+    for(uint i = 0; i < insert_values.size(); i++) {
+        Identifier column = insert_columns[i];
+        ColumnAttribute column_type = get_column_type(column, columns, column_types);
+
+        switch(column_type.get_data_type()) {
+            case ColumnAttribute::INT:
+                row[column] = Value(insert_values[i]->ival);
+                break;
+            case ColumnAttribute::TEXT:
+                row[column] = Value(insert_values[i]->name);
+                break;
+            default:
+                throw SQLExecError("don't know how to handle data type in INSERT");
+        }
+    }
+    Handle insert_handle = table.insert(&row);
+
+    IndexNames index_names = SQLExec::indices->get_index_names(table_name);
+    for(const auto index_name : index_names) {
+        DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
+        index.insert(insert_handle);
+    }
+    string suffix = "";
+    if(index_names.size() > 0) {
+        suffix = " and " + to_string(index_names.size()) + " indices";
+    }
+
+    return new QueryResult("successfully inserted 1 row into " + table_name + suffix);
+}
+ValueDict* SQLExec::get_where_conjunction(const Expr *expr) {
+    ValueDict* where = new ValueDict();
+    if (expr->type != kExprOperator)
+        throw DbRelationError("Invalid statement");
+
+    if (expr->opType == Expr::AND) {
+        ValueDict* first = get_where_conjunction(expr->expr);
+        ValueDict* second = get_where_conjunction(expr->expr2);
+        where->insert(first->begin(), first->end());
+        where->insert(second->begin(), second->end());
+        delete first;
+        delete second;
+    } else if (expr->opChar == '=') {
+        string index = expr->expr->name;
+        if (expr->expr2->type == kExprLiteralInt) {
+          (*where)[index] = Value(int32_t(expr->expr2->ival));
+        } else if (expr->expr2->type == kExprLiteralString) {
+            (*where)[index] = Value(expr->expr2->name);
+        } else {
+            throw DbRelationError("Don't know how to handle " + expr->expr2->type);
+        }
+    }  
+    return where;
 }
 
 QueryResult *SQLExec::del(const DeleteStatement *statement) {
-    return new QueryResult("DELETE statement not yet implemented");  // FIXME
+    Identifier tableName = statement->tableName;
+    DbRelation &table = SQLExec::tables->get_table(tableName);
+    EvalPlan *plan = new EvalPlan(table);
+    if (statement->expr != nullptr)
+        plan = new EvalPlan(get_where_conjunction(statement->expr), plan);
+    EvalPlan *optimized = plan->optimize();
+    delete plan;
+    EvalPipeline pipeline = optimized->pipeline();
+    delete optimized;
+    
+    IndexNames index_names = SQLExec::indices->get_index_names(tableName);
+    Handles *handles = pipeline.second;
+    uint rows = 0;
+    uint indices = index_names.size();
+    for (auto const& handle: *handles) {
+        for (auto const index_name: index_names) {
+            DbIndex &index = SQLExec::indices->get_index(tableName, index_name);
+            index.del(handle);
+        }
+        table.del(handle);
+        rows++;
+    }
+    delete handles;
+    return new QueryResult("successfully deleted " + to_string(rows) + " rows from " + tableName + " " + to_string(indices) + " indices");
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement)
