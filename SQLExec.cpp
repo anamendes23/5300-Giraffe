@@ -239,7 +239,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement)
 
     plan = new EvalPlan(col_names, plan);
     EvalPlan* optimize = plan->optimize();
-    ValueDicts* rows = optimized->evaluate();
+    ValueDicts* rows = optimize->evaluate();
     delete where;
 
     ColumnAttributes* col_attr = table.get_column_attributes(*col_names);
