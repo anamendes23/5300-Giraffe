@@ -6,6 +6,7 @@
  */
 #include "SQLExec.h"
 #include "ParseTreeToString.h"
+#include "EvalPlan.h"
 
 using namespace std;
 using namespace hsql;
@@ -152,6 +153,7 @@ QueryResult *SQLExec::insert(const InsertStatement *statement) {
 
     return new QueryResult("successfully inserted 1 row into " + table_name + suffix);
 }
+
 ValueDict* SQLExec::get_where_conjunction(const Expr *expr) {
     ValueDict* where = new ValueDict();
     if (expr->type != kExprOperator)
