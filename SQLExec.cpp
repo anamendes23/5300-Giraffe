@@ -233,7 +233,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement)
 
     if (statement->whereClause != NULL)
     {
-        where = get_where_conjunction(statement->whereClause, &table.get_column_names());
+        where = get_where_conjunction(statement->whereClause);
         plan = new EvalPlan(where, plan);
     }
 
