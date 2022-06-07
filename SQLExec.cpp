@@ -350,57 +350,46 @@ QueryResult *SQLExec::create_table(const CreateStatement *statement)
  */
 
 
-QueryResult *SQLExec::create_index(const CreateStatement *statement)
-{
-    // get index information from the sql statement
-    Identifier table_name = statement->tableName;
+QueryResult *SQLExec::create_index(const CreateStatement *statement) {
     Identifier index_name = statement->indexName;
-    Identifier index_type = statement->indexType;
+    Identifier table_name = statement->tableName;
 
     // get underlying relation
     DbRelation &table = SQLExec::tables->get_table(table_name);
+
     // check that given columns exist in table
     const ColumnNames &table_columns = table.get_column_names();
     for (auto const &col_name: *statement->indexColumns)
         if (find(table_columns.begin(), table_columns.end(), col_name) == table_columns.end())
             throw SQLExecError(string("Column '") + col_name + "' does not exist in " + table_name);
 
-    // add new index to _indices
+    // insert a row for every column in index into _indices
     ValueDict row;
     row["table_name"] = Value(table_name);
     row["index_name"] = Value(index_name);
-    row["index_type"] = Value(index_type);
+    row["index_type"] = Value(statement->indexType);
     row["is_unique"] = Value(string(statement->indexType) == "BTREE"); // assume HASH is non-unique --
-    Handles indexHandles;
-    try
-    {
-        // add columns
-        int seq = 1;
-        for(auto const &column : *statement->indexColumns) {
-            row["seq_in_index"] = Value(seq++);
-            row["column_name"] = Value(column);
-            indexHandles.push_back(SQLExec::indices->insert(&row));
+    int seq = 0;
+    Handles i_handles;
+    try {
+        for (auto const &col_name: *statement->indexColumns) {
+            row["seq_in_index"] = Value(++seq);
+            row["column_name"] = Value(col_name);
+            i_handles.push_back(SQLExec::indices->insert(&row));
         }
 
-        // now that columns were successfully added, get index and create it
         DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
         index.create();
-    }
-    catch (DbRelationError &e)
-    {
-        try
-        {
-            // undo index insertion
-            for(auto const &handle : indexHandles) {
-                SQLExec::indices->del(handle);
-            }
-        }
-        catch (DbRelationError &e) {}
-        // throw this exception to display error message in SQL shell
-        throw;
-    }
 
-    return new QueryResult("Created new index " + index_name);
+    } catch (...) {
+        // attempt to remove from _indices
+        try {  // if any exception happens in the reversal below, we still want to re-throw the original ex
+            for (auto const &handle: i_handles)
+                SQLExec::indices->del(handle);
+        } catch (...) {}
+        throw;  // re-throw the original exception (which should give the client some clue as to why it did
+    }
+    return new QueryResult("created index " + index_name);
 }
 
 QueryResult *SQLExec::show(const ShowStatement *statement)

@@ -27,13 +27,21 @@ BTreeIndex::~BTreeIndex() {
 
 // Create the index.
 void BTreeIndex::create() {
+    std::cout << "f1" << std::endl;
     file.create();
+    std::cout << "f2" << std::endl;
     stat = new BTreeStat(file, STAT, STAT + 1, key_profile);
     root = new BTreeLeaf(file, stat->get_root_id(), key_profile, true);
     closed = false;
+    std::cout << "f3" << std::endl;
+
     Handles *table_rows = relation.select();
+    std::cout << "f4" << std::endl;
+
     for (auto const &row: *table_rows)
         insert(row);
+    std::cout << "f5" << std::endl;
+
     delete table_rows;
 }
 
@@ -78,15 +86,14 @@ inline bool instanceof(const T *ptr) {
    return dynamic_cast<const Base*>(ptr) != nullptr;
 }
 
-Handles *BTreeIndex::_lookup(BTreeNode *node, uint height, const KeyValue *key) const {
-    if(instanceof<BTreeLeaf>(node)) {
-        Handles *results = new Handles();
-        results->push_back(dynamic_cast<const BTreeLeaf*>(node)->find_eq(key));
-        return results;
-    }
-    else {
-        return _lookup(dynamic_cast<const BTreeInterior*>(node)->find(key, height), height - 1, key);
-    }
+Handles* BTreeIndex::_lookup(BTreeNode* node, uint height, const KeyValue* key) const {
+    if (!dynamic_cast<BTreeLeaf*>(node))
+        return this->_lookup(dynamic_cast<const BTreeInterior*>(node)->find(key, height), height - 1, key);
+
+    Handles* res = new Handles();
+    try { res->push_back(dynamic_cast<const BTreeLeaf*>(node)->find_eq(key)); }
+    catch(...) {}
+    return res;
 }
 
 Handles *BTreeIndex::range(ValueDict *min_key, ValueDict *max_key) const {
@@ -163,7 +170,7 @@ bool test_btree() {
     column_attributes.push_back(ColumnAttribute(ColumnAttribute::INT));
     column_attributes.push_back(ColumnAttribute(ColumnAttribute::INT));
     HeapTable table("__test_btree", column_names, column_attributes);
-    table.create();
+    table.create_if_not_exists();
     ValueDict row1, row2;
     row1["a"] = Value(12);
     row1["b"] = Value(99);
@@ -171,7 +178,7 @@ bool test_btree() {
     row2["b"] = Value(101);
     table.insert(&row1);
     table.insert(&row2);
-    for (int i = 0; i < 100 * 1000; i++) {
+    for (int i = 0; i < 100 * 10; i++) {
         ValueDict row;
         row["a"] = Value(i + 100);
         row["b"] = Value(-i);
@@ -180,8 +187,9 @@ bool test_btree() {
     column_names.clear();
     column_names.push_back("a");
     BTreeIndex index(table, "fooindex", column_names, true);
+    std::cout << "here" << std::endl;
     index.create();
-    return true;  // FIXME
+
 
 
     ValueDict lookup;
@@ -225,7 +233,7 @@ bool test_btree() {
             delete handles;
             delete result;
         }
-
+    return true;  // FIXME
     // test delete
     ValueDict row;
     row["a"] = 44;
