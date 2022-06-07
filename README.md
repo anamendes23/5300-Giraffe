@@ -94,3 +94,20 @@ You can find watch the [video here](https://seattleu.instructuremedia.com/embed/
 This is an addendum video to talk about the memory leaks, you may find the [video here](https://seattleu.instructuremedia.com/embed/b18be271-0505-4459-aa9f-f805d33344e2).
 
 ---
+
+Sprint Inverno
+
+Team: Jacob Simons
+      Merryl Cruz
+
+Milestone 5 / 6:
+
+Basic implementation of b-tree index, missing implementation for delete and range.
+
+##Usage:
+Use make to create sql5300
+Run with ./sql5300 'database_path'
+SQL> test
+Test will run premade tests for heaptable and btree implementations.
+SQL> quit
+Quit will escape the program.
